@@ -118,40 +118,13 @@ if merge_base("apache_RiscOS_Sources_Kernel"):
     merge("Kernel-5_88-4_129_2_4", "Kernel-5_88")
     merge("Kernel-5_89-4_129_2_6", "Kernel-5_89")
     merge("Kernel-5_97-4_129_2_7", "Kernel-5_97")
-    merge("Kernel-6_05-4_129_2_8", "Kernel-6_06")
+    merge("Kernel-6_05-4_129_2_8", "Kernel-6_05")
     merge("Kernel-6_08-4_129_2_9", "Kernel-6_08")
     merge("Kernel-6_09", "Kernel-6_08-4_129_2_10")
 
-if merge_base("bsd_RiscOS_Apps_!CreateSEC"):
-    pass
-
-if merge_base("bsd_RiscOS_Apps_!Routines"):
-    pass
-
-if merge_base("bsd_RiscOS_Sources_Apps_Diversions_Hopper"):
-    pass
-
-if merge_base("bsd_RiscOS_Sources_Apps_Diversions_Meteors"):
-    pass
-
-if merge_base("bsd_RiscOS_Sources_Apps_Diversions_MineHunt"):
-    pass
-
 if merge_base("bsd_RiscOS_Sources_Audio_SharedSnd"):
-# merge("SharedSnd-1_06", "SharedSnd-ESP_SharedSnd-1_06_merge")
-    pass
-
-if merge_base("bsd_RiscOS_Sources_HWSupport_BatMgrHAL"):
-    pass
-
-if merge_base("bsd_RiscOS_Sources_HWSupport_CD_SCSI"):
-    pass
-
-if merge_base("bsd_RiscOS_Sources_HWSupport_PandoraKey"):
-    pass
-
-if merge_base("bsd_RiscOS_Sources_HWSupport_RTC"):
-    pass
+    merge("SharedSnd-0_48", "Spin_merge")
+    merge("SharedSnd-1_06", "SharedSnd-ESP_SharedSnd-1_06_merge")
 
 if merge_base("bsd_RiscOS_Sources_HWSupport_Sound_BCMSound"):
     pass
@@ -237,27 +210,14 @@ if merge_base("bsd_RiscOS_Sources_Video_UserI_BootFX"):
 if merge_base("bsd_RiscOS_Tools_Sources_SameFile"):
     pass
 
-if merge_base("apache_RiscOS_Apps_!Builder"):
-    pass
-
-if merge_base("apache_RiscOS_Apps_!EraseCVS"):
-    pass
-
-if merge_base("apache_RiscOS_Apps_!WinEdit"):
-    pass
-
 if merge_base("apache_RiscOS_BuildSys"):
     merge("BuildSys-6_00-1_142_2_2", "BuildSys-6_11")
     merge("BuildSys-6_00-1_142_2_3", "BuildSys-6_19")
-    merge_ref("BuildSys-6_00-1_142_2_4").parents[
-        0].parents.append(merge_ref("BuildSys-6_34"))
+    merge("BuildSys-6_00-1_142_2_4", "BuildSys-6_34", 1)
     merge("BuildSys-6_00-1_142_2_5", "BuildSys-6_52")
     merge("BuildSys-6_00-1_142_2_6", "BuildSys-6_64")
     merge("BuildSys-6_00-1_142_2_9", "BuildSys-7_04")
     merge("BuildSys-6_00-1_142_2_10", "BuildSys-7_08")
-
-if merge_base("apache_RiscOS_Env"):
-    pass
 
 if merge_base("apache_RiscOS_Export"):
     pass
@@ -265,9 +225,6 @@ if merge_base("apache_RiscOS_Export"):
 if merge_base("apache_RiscOS_Sources_Apps_Alarm"):
     merge("Alarm-2_71", "Ursula_merge")
 
-
-if merge_base("apache_RiscOS_Sources_Apps_Paint"):
-    merge("Paint-1_94", "mstphens_UrsulaRiscPCBuild_20Nov98")
 if merge_base("apache_RiscOS_Sources_Apps_Alarm"):
     pass
 
@@ -333,7 +290,7 @@ if merge_base("apache_RiscOS_Sources_Apps_MakeModes"):
     pass
 
 if merge_base("apache_RiscOS_Sources_Apps_Paint"):
-    pass
+    merge("Paint-1_94", "mstphens_UrsulaRiscPCBuild_20Nov98")
 
 if merge_base("apache_RiscOS_Sources_Apps_Sampler"):
     pass
@@ -393,8 +350,7 @@ if merge_base("apache_RiscOS_Sources_Desktop_Free"):
     pass
 
 if merge_base("apache_RiscOS_Sources_Desktop_Pinboard"):
-    merge_ref("Pinboard-0_75").parents[
-        0].parents.append(merge_ref("Ursula_merge"))
+    merge("Pinboard-0_75", "Ursula_merge", 1)
 
 if merge_base("apache_RiscOS_Sources_Desktop_RedrawMgr"):
     # merge("RedrawMgr-0_06",
@@ -412,8 +368,7 @@ if merge_base("apache_RiscOS_Sources_Desktop_TaskWindow"):
 
 if merge_base("apache_RiscOS_Sources_Desktop_Wimp"):
     merge("bavison_Wimp-4_00_TRUNK", "bavison_Wimp-4_00")
-    merge_ref("Wimp-4_01").parents[
-        0].parents.append(merge_ref("nicke_Wimp_3_96M"))
+    merge("Wimp-4_01", "nicke_Wimp_3_96M", 1)
     # TODO
 
 if merge_base("apache_RiscOS_Sources_FileSys_ADFS_ADFS"):
@@ -720,71 +675,20 @@ if merge_base("apache_RiscOS_Sources_Lib_RISC_OSLib"):
 if merge_base("apache_RiscOS_Sources_Lib_Unicode"):
     pass
 
-if merge_base("apache_RiscOS_Sources_Networking_AUN_Access_Freeway"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_AUN_Access_ShareFS"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_AUN_Apps_Access+"):
-    pass
-
 if merge_base("apache_RiscOS_Sources_Networking_AUN_AUNMsgs"):
-    pass
+    merge("AUNMsgs-0_10", "Spin_merge", 1)
 
 if merge_base("apache_RiscOS_Sources_Networking_AUN_BootNet"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_AUN_MManager"):
-    pass
+    merge("BootNet-0_90", "Ursula_13May1998_merge")
 
 if merge_base("apache_RiscOS_Sources_Networking_AUN_Net"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_BBCEconet"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_CheckURL"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_DHCP"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_Econet"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_Fetchers_File"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_Fetchers_Finger"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_Fetchers_FTP"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_Fetchers_Generic"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_Fetchers_Gopher"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_Fetchers_HTTP"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_Fetchers_URL"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_Fetchers_WhoIs"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Networking_MimeMap"):
-    pass
+    merge("Net-6_18", "Ursula_13May1998_merge", 1)
 
 if merge_base("apache_RiscOS_Sources_Networking_NetStatus"):
-    pass
+    merge("NetStatus-2_08", "Ursula_13May1998_merge", 2)
 
 if merge_base("apache_RiscOS_Sources_Networking_NetTime"):
-    pass
+    merge("NetTime-0_04", "Spin_merge")
 
 if merge_base("apache_RiscOS_Sources_Networking_NetUtils2"):
     pass
