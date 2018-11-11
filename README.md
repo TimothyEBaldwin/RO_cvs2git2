@@ -47,7 +47,7 @@ Split mode produces on Git repository for each CVS component.
  - [ ] Provide a merged branch combining the history of all the development product files. This will use symbolic links
  - [ ] Add the remainer of the CVS trunk history to the merged branch.
  - [ ] Merge consecutive commits in product branches.
- - [ ] Add .gitsubmodules file to submodules branches.
+ - [ ] Add .gitmodules file to submodules branches.
  - [ ] Replace log message "/home/srevill-nfs/sandbox/rool/msg.txt" with something meaningful.
  - [ ] Join up the 2 parts of `VFPSupport`.
  - [ ] Join up the split history of `InetSetup`.

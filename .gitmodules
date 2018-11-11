@@ -1,0 +1,7 @@
+[submodule "cvsroot"]
+	path = cvsroot
+	url = https://github.com/TimothyEBaldwin/RO_cvsroot.git
+
+[submodule "cvs-fast-export"]
+	path = cvs-fast-export
+	url = https://github.com/TimothyEBaldwin/RO_cvs-fast-export.git
