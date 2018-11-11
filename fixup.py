@@ -37,8 +37,6 @@ class commit:
 commits = dict()
 refs = dict()
 
-de_summary = re.compile(r"\s*Summary:\s*\n([^\n]*)\s*\n( *Detail:?)\s*\n")
-
 
 def load_commit(repo, oid):
     if oid in commits:
@@ -47,7 +45,7 @@ def load_commit(repo, oid):
     c = commit()
     c.author = c1.author
     c.committer = c1.committer
-    c.message = (de_summary.sub(r"\1\n\n\2\n", c1.message))
+    c.message = c1.message
     c.tree_id = c1.tree_id
     c.parents = [load_commit(repo, i) for i in c1.parent_ids]
     c.repo = repo
