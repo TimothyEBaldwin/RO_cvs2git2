@@ -1482,7 +1482,7 @@ def process_tree(products, name, subtree_add):
     for commit, path in products:
         while len(commit.parents) > 0:
             commit = commit.parents[0]
-        heapq.heappush(heap, (commit, "Products_" + path, "master"))
+        heapq.heappush(heap, (commit, "Products/" + path, "master"))
 
     c2 = None
     while len(heap) > 0:
@@ -1493,7 +1493,7 @@ def process_tree(products, name, subtree_add):
                 current.committer.time).strftime(
                     '%Y-%m-%d %H:%M:%S'))
 
-        if not current_path.startswith("Products_"):
+        if not current_path.startswith("Products/"):
             # print("Y", current, current.child, current_path)
             heapq.heappop(heap)
             if current.child is not None:
@@ -1505,7 +1505,7 @@ def process_tree(products, name, subtree_add):
             tree = Tree()
             mods = set()
             for branch, path in products:
-                path = "Products_" + path
+                path = "Products/" + path
                 tag = "master"
                 commit = find_commit_in_branch(branch)
                 subtree_add(tree, path, "master", commit)
