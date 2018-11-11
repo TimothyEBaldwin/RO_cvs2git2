@@ -21,17 +21,25 @@ It should be fairly simple to modify to run on other Unix systems, by removing t
 
 First download the submodules:
 
-```git submodule init
-git submodule update```
+```
+git submodule init
+git submodule update
+```
 
 Then run it:
 
-```./RO_cvs2git```
+```
+./RO_cvs2git
+```
 
 The output will be in the directory `git` (any existing repository will be deleted), and you can browse it like:
 
-```gitk --date-order --branches='apache_RiscOS_Sources_Kernel_*'```
-```gitk --date-order IOMDHALDev_master```
+```
+gitk --date-order --branches='apache_RiscOS_Sources_Kernel_*'
+```
+```
+gitk --date-order IOMDHALDev_master
+```
 
 Please be advised that future versions of this converter will produce different commit ids, it will be like rebasing.
 
@@ -39,7 +47,9 @@ Please be advised that future versions of this converter will produce different 
 
 Split mode produces on Git repository for each CVS component.
 
-```split=1 ./RO_cvs2git```
+```
+split=1 ./RO_cvs2git
+```
 
 ## Todo
 
