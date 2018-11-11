@@ -82,7 +82,7 @@ fi
   cd cvsroot
   perl -ne '/^([a-zA-Z]+[^\s]*)\s/; $_ = $1; tr:.:/:; print "$_\n" if -d $_;' Products/*/modules,v
   printf "%s\n" Products/*
-) | sort -u | parallel --halt soon,fail=1 convert
+) | sort -u | parallel convert
 
 if [[ ! -v split ]]; then
   fixup git
