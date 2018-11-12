@@ -38,7 +38,7 @@ commits = dict()
 refs = dict()
 
 
-def load_commit(repo, oid):
+def load_commit(oid):
     if oid in commits:
         return commits[oid]
     c1 = repo[oid]
@@ -47,8 +47,7 @@ def load_commit(repo, oid):
     c.committer = c1.committer
     c.message = c1.message
     c.tree_id = c1.tree_id
-    c.parents = [load_commit(repo, i) for i in c1.parent_ids]
-    c.repo = repo
+    c.parents = [load_commit(i) for i in c1.parent_ids]
     commits[oid] = c
     return c
 
@@ -56,7 +55,7 @@ for ref1 in repo.listall_references():
     ref = repo.lookup_reference(ref1)
     if ref.type == pygit2.GIT_REF_OID:
         if ref1.startswith("refs/original/"):
-            refs["refs/" + ref1[14:]] = load_commit(repo, ref.target)
+            refs["refs/" + ref1[14:]] = load_commit(ref.target)
             # ref.delete()
 
 
@@ -1410,7 +1409,7 @@ if merge_base("Prepare"):
 
 # Now rewrite the repository
 for key, value in refs.items():
-    value.repo.create_reference(key, rewrite(value), force=True)
+    repo.create_reference(key, rewrite(value), force=True)
 
 # Now the late addtions that use replace refs.
 
@@ -1437,11 +1436,11 @@ class Tree(dict):
         self.oid = None
         return t
 
-    def getObject(self, repo):
+    def getObject(self):
         if self.oid is None:
             tb = repo.TreeBuilder()
             for name, blob in self.items():
-                oid, attr = blob.getObject(repo)
+                oid, attr = blob.getObject()
                 tb.insert(name, oid, attr)
             self.oid = tb.write()
         return self.oid, pygit2.GIT_FILEMODE_TREE
@@ -1462,7 +1461,7 @@ class Blob:
         self.oid = oid
         self.attr = attr
 
-    def getObject(self, repo):
+    def getObject(self):
         return self.oid, self.attr
 
 
@@ -1510,8 +1509,8 @@ def process_tree(products, name, subtree_add):
                 commit = find_commit_in_branch(branch)
                 subtree_add(tree, path, "master", commit)
 
-                blob_id = commit.repo[commit.tree_id]["modules"].id
-                text = commit.repo[blob_id].read_raw().decode('cp437')
+                blob_id = repo[commit.tree_id]["modules"].id
+                text = repo[blob_id].read_raw().decode('cp437')
                 for i in parse_modules.finditer(text):
                     path = i.group(1)
                     tag = i.group(2)
@@ -1530,17 +1529,14 @@ def process_tree(products, name, subtree_add):
                     commit = find_commit_in_branch(commit)
                 subtree_add(tree, path, tag, commit)
 
-        c2 = branch.repo.create_commit(
+        c2 = repo.create_commit(
             None,
             current.author,
             current.committer,
             current_path + ": " + current.message,
-            tree.getObject(branch.repo)[0],
+            tree.getObject()[0],
             [] if c2 is None else [c2])
-    products[0][0].repo.create_reference(
-        "refs/heads/" + name + "_master",
-        c2,
-     force=True)
+    repo.create_reference("refs/heads/" + name + "_master", c2, force=True)
 
 
 def subtree_add(tree, path, tag, commit):
