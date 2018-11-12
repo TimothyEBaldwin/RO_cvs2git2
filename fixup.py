@@ -127,7 +127,7 @@ if merge_base("apache_RiscOS_Sources_Kernel"):
 
 if merge_base("bsd_RiscOS_Sources_Audio_SharedSnd"):
     merge("SharedSnd-0_48", "Spin_merge")
-    merge("SharedSnd-1_06", "SharedSnd-ESP_SharedSnd-1_06_merge")
+    merge("SharedSnd-1_06", "ESP_SharedSnd-1_06_merge")
 
 if merge_base("bsd_RiscOS_Sources_HWSupport_Sound_BCMSound"):
     pass
@@ -367,7 +367,7 @@ if merge_base("apache_RiscOS_Sources_Desktop_Switcher"):
 
 if merge_base("apache_RiscOS_Sources_Desktop_TaskWindow"):
     merge("TaskWindow-0_58", "Ursula_merge")
-    merge("nturton_TaskWindow-0_56", "TaskWindow_RO_3_71")
+    merge("nturton_TaskWindow-0_56", "RO_3_71")
 
 if merge_base("apache_RiscOS_Sources_Desktop_Wimp"):
     merge("bavison_Wimp-4_00_TRUNK", "bavison_Wimp-4_00")
@@ -444,7 +444,7 @@ if merge_base("apache_RiscOS_Sources_FileSys_SCSIFS_SCSIFS"):
     pass
 
 if merge_base("apache_RiscOS_Sources_HAL_IOMD"):
-    merge("IOMD-0_01", "IOMD_HAL_merge")
+    merge("IOMD-0_01", "HAL_merge")
 
 if merge_base("apache_RiscOS_Sources_HAL_OMAP4"):
     merge("OMAP4-0_54-1_52_2_2", "OMAP4-0_54")
