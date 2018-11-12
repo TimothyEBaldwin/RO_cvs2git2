@@ -1335,7 +1335,10 @@ if merge_base("mixed_RiscOS_Sources_HWSupport_VCHIQ"):
     pass
 
 if merge_base("mixed_RiscOS_Sources_HWSupport_VFPSupport"):
-    pass
+    try:
+        merge_ref("VFPSupport-0_05").parents.append(refs["refs/tags/bsd_RiscOS_Sources_HWSupport_VFPSupport_VFPSupport-0_05"])
+    except KeyError:
+        pass
 
 if merge_base("mixed_RiscOS_Sources_Lib_ImageLib"):
     pass
