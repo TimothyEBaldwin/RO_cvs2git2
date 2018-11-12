@@ -40,6 +40,9 @@ gitk --date-order --branches='apache_RiscOS_Sources_Kernel_*'
 ```
 gitk --date-order IOMDHALDev_master
 ```
+```
+gitk --date-order unified_master
+```
 
 Please be advised that future versions of this converter will produce different commit ids, it will be like rebasing.
 
@@ -54,7 +57,7 @@ split=1 ./RO_cvs2git
 ## Todo
 
  - [ ] Understand the history of the CVS default branch.
- - [ ] Provide a merged branch combining the history of all the development product files. This will use symbolic links
+ - [x] Provide a merged branch combining the history of all the development product files. This will use symbolic links in the Products directories to point to the right branch.
  - [ ] Add the remainer of the CVS trunk history to the merged branch.
  - [ ] Merge consecutive commits in product branches.
  - [ ] Add .gitmodules file to submodules branches.

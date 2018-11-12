@@ -1465,11 +1465,15 @@ class Blob:
         return self.oid, self.attr
 
 
-def process_tree(products, name, subtree_add):
+def process_tree(products, name, subtree_add, subtree_link):
 
     def find_commit_in_branch(c):
+        child = None
         c.child = None
         while c > current:
+            if len(c.parents) == 0:
+                heapq.heappush(heap, (c, path, tag))
+                return None
             n = c.parents[0]
             n.child = c
             c = n
@@ -1505,11 +1509,14 @@ def process_tree(products, name, subtree_add):
             mods = set()
             for branch, path in products:
                 path = "Products/" + path
+                product_path = path
                 tag = "master"
                 commit = find_commit_in_branch(branch)
-                subtree_add(tree, path, "master", commit)
-
+                if commit is None:
+                    continue
                 blob_id = repo[commit.tree_id]["modules"].id
+                tree.pathAdd(path + "/modules", Blob(blob_id, pygit2.GIT_FILEMODE_BLOB))
+                subtree_link(tree, path, path + "/modules", tag)
                 text = repo[blob_id].read_raw().decode('cp437')
                 for i in parse_modules.finditer(text):
                     path = i.group(1)
@@ -1518,6 +1525,7 @@ def process_tree(products, name, subtree_add):
                         tag = "master"
                     path = path.replace(".", "/")
                     mods.add((path, tag))
+                    subtree_link(tree, product_path, path, tag)
 
             for path, tag in mods:
                 rpath = path.replace("/", "_")
@@ -1527,6 +1535,8 @@ def process_tree(products, name, subtree_add):
                     if commit is None:
                         continue
                     commit = find_commit_in_branch(commit)
+                    if commit is None:
+                        continue
                 subtree_add(tree, path, tag, commit)
 
         c2 = repo.create_commit(
@@ -1539,12 +1549,26 @@ def process_tree(products, name, subtree_add):
     repo.create_reference("refs/heads/" + name + "_master", c2, force=True)
 
 
+def subtree_nolink(tree, product_path, path, tag):
+    pass
+
 def subtree_add(tree, path, tag, commit):
     tree.pathAdd(path, Blob(commit.tree_id, pygit2.GIT_FILEMODE_TREE))
 
-
 def submodule_add(tree, path, tag, commit):
     tree.pathAdd(path, Blob(commit.oid, pygit2.GIT_FILEMODE_COMMIT))
+
+def subtree_add_linked(tree, path, tag, commit):
+    if tag != "master":
+        path = path + "-" + tag
+    tree.pathAdd(path, Blob(commit.tree_id, pygit2.GIT_FILEMODE_TREE))
+
+def subtree_link(tree, product_path, path, tag):
+    tpath = path
+    if tag != "master":
+        tpath = tpath + "-" + tag
+    b = repo.create_blob("../" * (tpath.count("/") + 2) + product_path + "/../../" + tpath)
+    tree.pathAdd(product_path + "/" + path, Blob(b, pygit2.GIT_FILEMODE_LINK))
 
 parse_modules = re.compile(r"^[\t ]*([^#]\S*)[\t ]*(\S*)[\t ]*$", re.MULTILINE)
 products = [
@@ -1558,7 +1582,10 @@ products = [
     "iMx6Dev"
 ]
 
+products = [(refs["refs/heads/Products_" + x + "_master"], x) for x in products]
+
 for x in products:
-    x = (refs["refs/heads/Products_" + x + "_master"], x)
-    process_tree([x], x[1], subtree_add)
-    process_tree([x], x[1] + "_submodules", submodule_add)
+    process_tree([x], x[1], subtree_add, subtree_nolink)
+    process_tree([x], x[1] + "_submodules", submodule_add, subtree_nolink)
+
+process_tree(products, "unified", subtree_add_linked, subtree_link)
