@@ -92,15 +92,12 @@ def merge_ref(c):
 
 
 def merge(c, p, i=0):
-    try:
-        c = merge_ref(c)
-        while i > 0:
-            i -= 1
-            c = c.parents[0]
-        c.replaced = True
-        c.parents.append(merge_ref(p))
-    except KeyError:
-        pass
+    c = merge_ref(c)
+    while i > 0:
+        i -= 1
+        c = c.parents[0]
+    c.replaced = True
+    c.parents.append(merge_ref(p))
 
 
 fix_redudant_commits()
