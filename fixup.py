@@ -1528,7 +1528,12 @@ def process_tree(products, name, subtree_add, subtree_link):
                     subtree_link(tree, product_path, path, tag)
 
             for path, tag in mods:
-                rpath = path.replace("/", "_")
+                rpath = path
+                if rpath == "apache/RiscOS/Sources/HWSupport/AHCIDriver":
+                    rpath = "apache/RiscOS/Sources/HWSupport/SCSI/AHCIDriver"
+                if rpath == "apache/RiscOS/Sources/HAL/OMAP5":
+                    rpath = "mixed/RiscOS/Sources/HAL/OMAP5"
+                rpath = rpath.replace("/", "_")
                 commit = refs.get("refs/tags/" + rpath + "_" + tag)
                 if commit is None:
                     commit = refs.get("refs/heads/" + rpath + "_" + tag)
