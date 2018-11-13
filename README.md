@@ -63,7 +63,7 @@ split=1 ./RO_cvs2git
  - [ ] Add .gitmodules file to submodules branches.
  - [ ] Replace log message "/home/srevill-nfs/sandbox/rool/msg.txt" with something meaningful.
  - [x] Join up the 2 parts of `VFPSupport`.
- - [ ] Join up the split history of `InetSetup`.
+ - [ ] Fix handling of `InetSetup`.
  - [ ] Convert CVS usernames to names (and email addresses if wished).
  - [ ] Try building some or all of the history.
  - [ ] Declare the conversion stable.
