@@ -219,9 +219,6 @@ if merge_base("apache_RiscOS_BuildSys"):
     merge("BuildSys-6_00-1_142_2_9", "BuildSys-7_04")
     merge("BuildSys-6_00-1_142_2_10", "BuildSys-7_08")
 
-if merge_base("apache_RiscOS_Export"):
-    pass
-
 if merge_base("apache_RiscOS_Sources_Apps_Alarm"):
     merge("Alarm-2_71", "Ursula_merge")
 
@@ -231,47 +228,11 @@ if merge_base("apache_RiscOS_Sources_Apps_Alarm"):
 if merge_base("apache_RiscOS_Sources_Apps_Browse"):
     pass
 
-if merge_base("apache_RiscOS_Sources_Apps_CDPlayer"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_Chars"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_CloseUp"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_Diversions_Blocks"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_Diversions_Clock"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_Diversions_Diversions"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_Diversions_Flasher"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_Diversions_Madness"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_Diversions_MemNow"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_Diversions_MineHunt"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_Diversions_Patience"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_Diversions_Puzzle"):
-    pass
-
 if merge_base("apache_RiscOS_Sources_Apps_Draw"):
-    pass
+    merge("Draw-1_11", "Ursula_merge")
 
 if merge_base("apache_RiscOS_Sources_Apps_Edit"):
-    pass
+    merge("Edit-1_55", "Ursula_merge")
 
 if merge_base("apache_RiscOS_Sources_Apps_FontEd"):
     merge("Manager-3_42", "Manager-3_41-4_2_2_13")
@@ -282,9 +243,6 @@ if merge_base("apache_RiscOS_Sources_Apps_Help"):
 if merge_base("apache_RiscOS_Sources_Apps_Help2"):
     merge("Help2-3_09", "Ursula_merge")
     merge("Help2-3_09", "Ursula_RiscPC_merge")
-
-if merge_base("apache_RiscOS_Sources_Apps_Maestro"):
-    pass
 
 if merge_base("apache_RiscOS_Sources_Apps_MakeModes"):
     pass
