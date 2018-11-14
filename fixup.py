@@ -222,9 +222,6 @@ if merge_base("apache_RiscOS_BuildSys"):
 if merge_base("apache_RiscOS_Sources_Apps_Alarm"):
     merge("Alarm-2_71", "Ursula_merge")
 
-if merge_base("apache_RiscOS_Sources_Apps_Alarm"):
-    pass
-
 if merge_base("apache_RiscOS_Sources_Apps_Browse"):
     pass
 
@@ -250,34 +247,10 @@ if merge_base("apache_RiscOS_Sources_Apps_MakeModes"):
 if merge_base("apache_RiscOS_Sources_Apps_Paint"):
     merge("Paint-1_94", "mstphens_UrsulaRiscPCBuild_20Nov98")
 
-if merge_base("apache_RiscOS_Sources_Apps_Sampler"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_SciCalc"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_Squash"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_SrcEdit"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_Toolbox_ResCreate"):
-    pass
-
 if merge_base("apache_RiscOS_Sources_Apps_Toolbox_ResEd"):
     pass
 
-if merge_base("apache_RiscOS_Sources_Apps_Toolbox_ResTest"):
-    pass
-
 if merge_base("apache_RiscOS_Sources_Apps_TTXTViewer"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Apps_WebServe"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Audio_SoundCtrl"):
     pass
 
 if merge_base("apache_RiscOS_Sources_Desktop_Clipboard"):
