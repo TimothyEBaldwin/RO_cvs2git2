@@ -38,6 +38,9 @@ class AbstractRCSRevisionReader(RevisionReader):
   # mode, which leaves the keywords untouched.  Therefore, whenever
   # eol_fix is False, we need to use '-kb' mode and then (if
   # necessary) expand or collapse the keywords ourselves.
+  #
+  # The 'kept' substitution is an exception, we do not deal with
+  # keywords at all in this case and just let CVS do its thing.
   _text_options = {
       (False, 'collapsed') : (['-kb'], 'collapsed'),
       (False, 'expanded') : (['-kb'], 'expanded'),
@@ -46,6 +49,9 @@ class AbstractRCSRevisionReader(RevisionReader):
       (True, 'collapsed') : (['-kk'], None),
       (True, 'expanded') : (['-kkv'], None),
       (True, 'untouched') : (['-ko'], None),
+
+      (False, 'kept') : ([], None),
+      (True, 'kept') : ([], None),
       }
 
   def get_pipe_command(self, cvs_rev, k_option):

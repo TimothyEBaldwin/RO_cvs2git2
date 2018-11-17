@@ -24,6 +24,7 @@ from cvs2svn_lib import config
 from cvs2svn_lib.common import FatalError
 from cvs2svn_lib.common import InternalError
 from cvs2svn_lib.run_options import RunOptions
+from cvs2svn_lib.run_options import IncompatibleOption
 from cvs2svn_lib.log import logger
 from cvs2svn_lib.common import error_prefix
 from cvs2svn_lib.context import Ctx
@@ -50,9 +51,9 @@ class KeywordHandlingPropertySetter(FilePropertySetter):
   propname = '_keyword_handling'
 
   def __init__(self, value):
-    if value not in ['collapsed', 'expanded', 'untouched', None]:
+    if value not in ['collapsed', 'expanded', 'untouched', 'kept', None]:
       raise FatalError(
-          'Value for %s must be "collapsed", "expanded", or "untouched"'
+          'Value for %s must be "collapsed", "expanded", "untouched", or "kept"'
           % (self.propname,)
           )
     self.value = value
@@ -71,6 +72,27 @@ class DVCSRunOptions(RunOptions):
     if Ctx().username is None:
       Ctx().username = self.DEFAULT_USERNAME
     RunOptions.__init__(self, progname, cmd_args, pass_manager)
+
+  def _get_extraction_options_group(self):
+    group = super(DVCSRunOptions, self)._get_extraction_options_group()
+    self.parser.set_default('force_keyword_mode', 'no')
+    group.add_option(IncompatibleOption(
+        '--force-keyword-mode', type='choice',
+        choices=['untouched', 'collapsed', 'expanded', 'kept', 'no'],
+        action='store',
+        help='force (untouched, collapsed, expanded, kept), or no',
+        man_help=(
+            'Keyword mode to force, or \\fIno\\fR to use the default. '
+            '\\fIopt\\fR can be \'untouched\' (keep literally as they '
+            'are recorded in the RCS file), \'collapsed\' (retain the '
+            'key but not the value), \'expanded\' (fake the way CVS '
+            'expands them, even for binaries), \'kept\' (just let CVS '
+            'deal with keywords).'
+            ),
+        metavar='OPT',
+        ))
+
+    return group
 
   def set_project(
         self,
@@ -103,9 +125,14 @@ class DVCSRunOptions(RunOptions):
   def process_property_setter_options(self):
     RunOptions.process_property_setter_options(self)
 
+    property_mode = self.options.force_keyword_mode
+    if property_mode == 'no':
+        # default
+        property_mode = 'collapsed'
+
     # Property setters for internal use:
     Ctx().file_property_setters.append(
-        KeywordHandlingPropertySetter('collapsed')
+        KeywordHandlingPropertySetter(property_mode)
         )
 
   def process_options(self):

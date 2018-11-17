@@ -707,6 +707,9 @@ class InternalRevisionReader(RevisionReader):
         'untouched' -- output keywords in the form they are found in
             the RCS file
 
+        'kept' -- output keywords in the form they are found in
+            the CVS checkout output
+
     Note that $Log$ never actually generates a log (which makes test
     'requires_cvs()' fail).
 
@@ -727,6 +730,9 @@ class InternalRevisionReader(RevisionReader):
 
     if keyword_handling == 'untouched':
       # Leave keywords in the form that they were checked in.
+      pass
+    elif keyword_handling == 'kept':
+      # Leave keywords in the form they would have on checkout.
       pass
     elif keyword_handling == 'collapsed':
       text = collapse_keywords(text)

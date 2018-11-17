@@ -116,6 +116,8 @@ class RevisionReader(object):
         *previous* revision, because CVS expands keywords on checkout,
         not checkin.
 
+      * kept -- let CVS deal with keywords
+
       * unset -- undefined behavior; depends on which revision manager
         is being used.
 

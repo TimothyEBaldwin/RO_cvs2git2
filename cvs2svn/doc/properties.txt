@@ -75,6 +75,10 @@ they are used for two purposes:
                useful feature, but is listed for completeness.  NOT
                YET IMPLEMENTED.
 
+           'kept' -- Just let CVS deal with the keywords, do not
+               handle them specially internally.  This may conflict
+               with other options and should be used carefully.
+
        _eol_fix -- Should end-of-line sequences be made uniform before
            committing to the target VCS?  If this property is set to a
            non-empty value, then every end-of-line character sequence
