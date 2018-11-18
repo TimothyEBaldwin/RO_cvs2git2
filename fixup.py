@@ -117,10 +117,6 @@ if merge_base("apache_RiscOS_Sources_Kernel"):
     merge("Kernel-6_05-4_129_2_8", "Kernel-6_05")
     merge("Kernel-6_08-4_129_2_9", "Kernel-6_08")
     merge("Kernel-6_09", "Kernel-6_08-4_129_2_10")
-    merge_ref("Kernel-6_01-3").parents[
-        0].tree_id = merge_ref("Kernel-6_01-3").tree_id
-    refs["refs/tags/apache_RiscOS_Sources_Kernel_Kernel-6_01-3"] = merge_ref(
-        "Kernel-6_01-3").parents[0]
 
 if merge_base("bsd_RiscOS_Sources_Audio_SharedSnd"):
     merge("SharedSnd-0_48", "Spin_merge")
