@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: cvs2svn
-Version: 2.4.0
+Version: 2.5.0
 Summary: CVS to Subversion/git/Bazaar/Mercurial repository converter
 Home-page: http://cvs2svn.tigris.org/
 Author: The cvs2svn team

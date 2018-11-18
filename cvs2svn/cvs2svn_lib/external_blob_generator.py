@@ -40,27 +40,40 @@ import os
 import subprocess
 import cPickle as pickle
 
+from cvs2svn_lib import config
 from cvs2svn_lib.common import FatalError
 from cvs2svn_lib.log import logger
 from cvs2svn_lib.cvs_item import CVSRevisionDelete
 from cvs2svn_lib.revision_manager import RevisionCollector
 from cvs2svn_lib.key_generator import KeyGenerator
+from cvs2svn_lib.artifact_manager import artifact_manager
 
 
 class ExternalBlobGenerator(RevisionCollector):
   """Have generate_blobs.py output file revisions to a blob file."""
 
-  def __init__(self, blob_filename):
+  def __init__(self, blob_filename=None):
     self.blob_filename = blob_filename
+
+  def register_artifacts(self, which_pass):
+    RevisionCollector.register_artifacts(self, which_pass)
+    if self.blob_filename is None:
+      artifact_manager.register_temp_file(
+        config.GIT_BLOB_DATAFILE, which_pass,
+        )
 
   def start(self):
     self._mark_generator = KeyGenerator()
     logger.normal('Starting generate_blobs.py...')
-    self._popen = subprocess.Popen(
+    if self.blob_filename is None:
+      blob_filename = artifact_manager.get_temp_file(config.GIT_BLOB_DATAFILE)
+    else:
+      blob_filename = self.blob_filename
+    self._pipe = subprocess.Popen(
         [
             sys.executable,
             os.path.join(os.path.dirname(__file__), 'generate_blobs.py'),
-            self.blob_filename,
+            blob_filename,
             ],
         stdin=subprocess.PIPE,
         )
@@ -83,12 +96,13 @@ class ExternalBlobGenerator(RevisionCollector):
           cvs_rev.revision_reader_token = mark
           marks[cvs_rev.rev] = mark
 
-    # A separate pickler is used for each dump(), so that its memo
-    # doesn't grow very large.  The default ASCII protocol is used so
-    # that this works without changes on systems that distinguish
-    # between text and binary files.
-    pickle.dump((cvs_file_items.cvs_file.rcs_path, marks), self._popen.stdin)
-    self._popen.stdin.flush()
+    if marks:
+      # A separate pickler is used for each dump(), so that its memo
+      # doesn't grow very large.  The default ASCII protocol is used so
+      # that this works without changes on systems that distinguish
+      # between text and binary files.
+      pickle.dump((cvs_file_items.cvs_file.rcs_path, marks), self._pipe.stdin)
+      self._pipe.stdin.flush()
 
     # Now that all CVSRevisions' revision_reader_tokens are set,
     # iterate through symbols and set their tokens to those of their
@@ -100,9 +114,9 @@ class ExternalBlobGenerator(RevisionCollector):
         self._process_symbol(cvs_tag, cvs_file_items)
 
   def finish(self):
-    self._popen.stdin.close()
+    self._pipe.stdin.close()
     logger.normal('Waiting for generate_blobs.py to finish...')
-    returncode = self._popen.wait()
+    returncode = self._pipe.wait()
     if returncode:
       raise FatalError(
           'generate_blobs.py failed with return code %s.' % (returncode,)

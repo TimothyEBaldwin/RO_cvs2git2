@@ -16,11 +16,13 @@
 
 """This module contains classes to set common cvs2xxx run options."""
 
+import os
 import sys
 import re
 import optparse
 from optparse import OptionGroup
 import datetime
+import tempfile
 import codecs
 import time
 
@@ -69,10 +71,6 @@ from cvs2svn_lib.property_setters import SVNBinaryFileKeywordsPropertySetter
 usage = """\
 Usage: %prog --options OPTIONFILE
        %prog [OPTION...] OUTPUT-OPTION CVS-REPOS-PATH"""
-
-description="""\
-Convert a CVS repository into a Subversion repository, including history.
-"""
 
 
 class IncompatibleOption(ManOption):
@@ -267,8 +265,9 @@ class RunOptions(object):
     # Check for problems with the options:
     self.check_options()
 
-  def get_description(self):
-    return description
+  @classmethod
+  def get_description(klass):
+    return klass.description
 
   def _get_options_file_options_group(self):
     group = OptionGroup(
@@ -360,11 +359,11 @@ class RunOptions(object):
         help=(
             'if a file appears both in and out of '
             'the CVS Attic, then leave the attic version in a '
-            'SVN directory called "Attic"'
+            'subdirectory called "Attic"'
             ),
         man_help=(
-            'If a file appears both inside an outside of the CVS attic, '
-            'retain the attic version in an SVN subdirectory called '
+            'If a file appears both inside and outside of the CVS attic, '
+            'retain the attic version in a subdirectory called '
             '\'Attic\'.  (Normally this situation is treated as a fatal '
             'error.)'
             ),
@@ -384,8 +383,8 @@ class RunOptions(object):
             'respectively.  P must match the whole symbol name'
             ),
         man_help=(
-            'Transform RCS/CVS symbol names before entering them into '
-            'Subversion. \\fIpattern\\fR is a Python regexp pattern that '
+            'Transform RCS/CVS symbol names before entering them into the '
+            'output history. \\fIpattern\\fR is a Python regexp pattern that '
             'is matches against the entire symbol name; \\fIreplacement\\fR '
             'is a replacement using Python\'s regexp reference syntax. '
             'You may specify any number of these options; they will be '
@@ -497,16 +496,22 @@ class RunOptions(object):
 
   def _get_subversion_properties_options_group(self):
     group = OptionGroup(self.parser, 'Subversion properties')
+
+    if self.DEFAULT_USERNAME is None:
+      default = 'The default is to use no author at all for such commits.'
+    else:
+      default = 'Default: "%s".' % (self.DEFAULT_USERNAME,)
+
     group.add_option(ContextOption(
-        '--username', type='string',
+        '--username', type='string', default=self.DEFAULT_USERNAME,
         action='store',
-        help='username for cvs2svn-synthesized commits',
+        help='username for synthesized commits. ' + default,
         man_help=(
-            'Set the default username to \\fIname\\fR when cvs2svn needs '
+            'Set the default username to \\fIname\\fR when this program needs '
             'to generate a commit for which CVS does not record the '
             'original username. This happens when a branch or tag is '
-            'created. The default is to use no author at all for such '
-            'commits.'
+            'created. '
+            + default
             ),
         metavar='NAME',
         ))
@@ -701,13 +706,12 @@ class RunOptions(object):
         action='store',
         help=(
             'directory to use for temporary data files '
-            '(default "cvs2svn-tmp")'
-            ),
+            '(default is to create a temporary subdirectory under %r)'
+            ) % (tempfile.gettempdir(),),
         man_help=(
-            'Set the \\fIpath\\fR to use for temporary data. Default '
-            'is a directory called \\fIcvs2svn-tmp\\fR under the current '
-            'directory.'
-            ),
+            'Set the \\fIpath\\fR to use for temporary data.  The default '
+            'is to create a temporary subdirectory under \\fI%s\\fR.'
+            ) % (tempfile.gettempdir(),),
         metavar='PATH',
         ))
     self.parser.set_default('co_executable', config.CO_EXECUTABLE)
@@ -880,11 +884,23 @@ class RunOptions(object):
     self.pass_manager.help_passes()
     sys.exit(0)
 
+  def _choose_build_date(self):
+    """Choose the data to embed in the man pages.
+
+    If environment variable SOURCE_DATE_EPOCH is set, use that.
+    Otherwise, use the current time."""
+
+    t = os.environ.get('SOURCE_DATE_EPOCH')
+    if t:
+      return datetime.datetime.utcfromtimestamp(int(t)).date()
+    else:
+      return datetime.date.today()
+
   def callback_manpage(self, option, opt_str, value, parser):
     f = codecs.getwriter('utf_8')(sys.stdout)
     writer = ManWriter(parser,
                        section='1',
-                       date=datetime.date.today(),
+                       date=self._choose_build_date(),
                        source='Version %s' % (VERSION,),
                        manual='User Commands',
                        short_desc=self.short_desc,

@@ -16,7 +16,7 @@
 # ====================================================================
 
 # The version of cvs2svn:
-VERSION = '2.4.0'
+VERSION = '2.5.0'
 
 
 # If this file is run as a script, print the cvs2svn version number to

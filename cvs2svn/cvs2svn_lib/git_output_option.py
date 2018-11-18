@@ -22,9 +22,12 @@ For information about the format allowed by git-fast-import, see:
 
 """
 
+import sys
 import bisect
 import time
+import shutil
 
+from cvs2svn_lib import config
 from cvs2svn_lib.common import InternalError
 from cvs2svn_lib.log import logger
 from cvs2svn_lib.context import Ctx
@@ -35,41 +38,63 @@ from cvs2svn_lib.cvs_item import CVSSymbol
 from cvs2svn_lib.dvcs_common import DVCSOutputOption
 from cvs2svn_lib.dvcs_common import MirrorUpdater
 from cvs2svn_lib.key_generator import KeyGenerator
+from cvs2svn_lib.artifact_manager import artifact_manager
 
+def cvs_item_is_executable(cvs_item):
+  return 'svn:executable' in cvs_item.cvs_file.properties
 
 class GitRevisionWriter(MirrorUpdater):
 
   def start(self, mirror, f):
-    super(GitRevisionWriter, self).start(mirror)
+    MirrorUpdater.start(self, mirror)
     self.f = f
 
   def _modify_file(self, cvs_item, post_commit):
     raise NotImplementedError()
 
   def add_file(self, cvs_rev, post_commit):
-    super(GitRevisionWriter, self).add_file(cvs_rev, post_commit)
+    MirrorUpdater.add_file(self, cvs_rev, post_commit)
     self._modify_file(cvs_rev, post_commit)
 
   def modify_file(self, cvs_rev, post_commit):
-    super(GitRevisionWriter, self).modify_file(cvs_rev, post_commit)
+    MirrorUpdater.modify_file(self, cvs_rev, post_commit)
     self._modify_file(cvs_rev, post_commit)
 
   def delete_file(self, cvs_rev, post_commit):
-    super(GitRevisionWriter, self).delete_file(cvs_rev, post_commit)
+    MirrorUpdater.delete_file(self, cvs_rev, post_commit)
     self.f.write('D %s\n' % (cvs_rev.cvs_file.cvs_path,))
 
   def branch_file(self, cvs_symbol):
-    super(GitRevisionWriter, self).branch_file(cvs_symbol)
+    MirrorUpdater.branch_file(self, cvs_symbol)
     self._modify_file(cvs_symbol, post_commit=False)
 
   def finish(self):
-    super(GitRevisionWriter, self).finish()
+    MirrorUpdater.finish(self)
     del self.f
 
 
 class GitRevisionMarkWriter(GitRevisionWriter):
+  def register_artifacts(self, which_pass):
+    GitRevisionWriter.register_artifacts(self, which_pass)
+    if Ctx().revision_collector.blob_filename is None:
+      artifact_manager.register_temp_file_needed(
+        config.GIT_BLOB_DATAFILE, which_pass,
+        )
+
+  def start(self, mirror, f):
+    GitRevisionWriter.start(self, mirror, f)
+    if Ctx().revision_collector.blob_filename is None:
+      # The revision collector wrote the blobs to a temporary file;
+      # copy them into f:
+      logger.normal('Copying blob data to output')
+      blobf = open(
+          artifact_manager.get_temp_file(config.GIT_BLOB_DATAFILE), 'rb',
+          )
+      shutil.copyfileobj(blobf, f)
+      blobf.close()
+
   def _modify_file(self, cvs_item, post_commit):
-    if cvs_item.cvs_file.executable:
+    if cvs_item_is_executable(cvs_item):
       mode = '100755'
     else:
       mode = '100644'
@@ -94,7 +119,7 @@ class GitRevisionInlineWriter(GitRevisionWriter):
     self.revision_reader.start()
 
   def _modify_file(self, cvs_item, post_commit):
-    if cvs_item.cvs_file.executable:
+    if cvs_item_is_executable(cvs_item):
       mode = '100755'
     else:
       mode = '100644'
@@ -127,9 +152,9 @@ class GitOutputOption(DVCSOutputOption):
 
   Members:
 
-    dump_filename -- (string) the name of the file to which the
-        git-fast-import commands for defining revisions will be
-        written.
+    dump_filename -- (string or None) the name of the file to which
+        the git-fast-import commands for defining revisions will be
+        written.  If None, the data will be written to stdout.
 
     author_transforms -- a map from CVS author names to git full name
         and email address.  See
@@ -145,20 +170,22 @@ class GitOutputOption(DVCSOutputOption):
   _first_commit_mark = 1000000000
 
   def __init__(
-        self, dump_filename, revision_writer,
+        self, revision_writer,
+        dump_filename=None,
         author_transforms=None,
         tie_tag_fixup_branches=False,
         ):
     """Constructor.
 
-    DUMP_FILENAME is the name of the file to which the git-fast-import
-    commands for defining revisions should be written.  (Please note
-    that depending on the style of revision writer, the actual file
-    contents might not be written to this file.)
-
     REVISION_WRITER is a GitRevisionWriter that is used to output
     either the content of revisions or a mark that was previously used
     to label a blob.
+
+    DUMP_FILENAME is the name of the file to which the git-fast-import
+    commands for defining revisions should be written.  (Please note
+    that depending on the style of revision writer, the actual file
+    contents might not be written to this file.)  If it is None, then
+    the output is written to stdout.
 
     AUTHOR_TRANSFORMS is a map {cvsauthor : (fullname, email)} from
     CVS author names to git full name and email address.  All of the
@@ -193,7 +220,10 @@ class GitOutputOption(DVCSOutputOption):
 
   def setup(self, svn_rev_count):
     DVCSOutputOption.setup(self, svn_rev_count)
-    self.f = open(self.dump_filename, 'wb')
+    if self.dump_filename is None:
+      self.f = sys.stdout
+    else:
+      self.f = open(self.dump_filename, 'wb')
 
     # The youngest revnum that has been committed so far:
     self._youngest = 0
@@ -269,10 +299,12 @@ class GitOutputOption(DVCSOutputOption):
       self.f.write('commit refs/heads/master\n')
     else:
       self.f.write('commit refs/heads/%s\n' % (lod.name,))
-    self.f.write(
-        'mark :%d\n'
-        % (self._create_commit_mark(lod, svn_commit.revnum),)
+    mark = self._create_commit_mark(lod, svn_commit.revnum)
+    logger.normal(
+        'Writing commit r%d on %s (mark :%d)'
+        % (svn_commit.revnum, lod, mark,)
         )
+    self.f.write('mark :%d\n' % (mark,))
     self.f.write(
         'committer %s %d +0000\n' % (author, svn_commit.date,)
         )
@@ -298,10 +330,12 @@ class GitOutputOption(DVCSOutputOption):
     self._mirror.start_commit(svn_commit.revnum)
     # FIXME: is this correct?:
     self.f.write('commit refs/heads/master\n')
-    self.f.write(
-        'mark :%d\n'
-        % (self._create_commit_mark(None, svn_commit.revnum),)
+    mark = self._create_commit_mark(None, svn_commit.revnum)
+    logger.normal(
+        'Writing post-commit r%d on Trunk (mark :%d)'
+        % (svn_commit.revnum, mark,)
         )
+    self.f.write('mark :%d\n' % (mark,))
     self.f.write(
         'committer %s %d +0000\n' % (author, svn_commit.date,)
         )
@@ -376,36 +410,6 @@ class GitOutputOption(DVCSOutputOption):
       for (source_revnum, source_lod, cvs_symbols,) in source_groups:
         for cvs_symbol in cvs_symbols:
           cvs_files_to_delete.discard(cvs_symbol.cvs_file)
-
-    # Write a trailer to the log message which describes the cherrypicks that
-    # make up this symbol creation.
-    log_msg += "\n"
-    if is_initial_lod_creation:
-      log_msg += "\nSprout from %s" % (
-          self._describe_commit(
-              Ctx()._persistence_manager.get_svn_commit(p_source_revnum),
-              p_source_lod
-              ),
-          )
-    for (source_revnum, source_lod, cvs_symbols,) \
-            in source_groups[(is_initial_lod_creation and 1 or 0):]:
-      log_msg += "\nCherrypick from %s:" % (
-          self._describe_commit(
-              Ctx()._persistence_manager.get_svn_commit(source_revnum),
-              source_lod
-              ),
-          )
-      for cvs_path in sorted(
-            cvs_symbol.cvs_file.cvs_path for cvs_symbol in cvs_symbols
-            ):
-        log_msg += "\n    %s" % (cvs_path,)
-    if is_initial_lod_creation:
-      if cvs_files_to_delete:
-        log_msg += "\nDelete:"
-        for cvs_path in sorted(
-              cvs_file.cvs_path for cvs_file in cvs_files_to_delete
-              ):
-          log_msg += "\n    %s" % (cvs_path,)
 
     self.f.write('commit %s\n' % (git_branch,))
     self.f.write('mark :%d\n' % (mark,))
@@ -545,7 +549,8 @@ class GitOutputOption(DVCSOutputOption):
   def cleanup(self):
     DVCSOutputOption.cleanup(self)
     self.revision_writer.finish()
-    self.f.close()
+    if self.dump_filename is not None:
+      self.f.close()
     del self.f
 
 

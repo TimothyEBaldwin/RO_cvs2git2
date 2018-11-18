@@ -16,6 +16,7 @@
 
 """This module manages cvs2bzr run options."""
 
+import tempfile
 
 from cvs2svn_lib.common import FatalError
 from cvs2svn_lib.context import Ctx
@@ -32,12 +33,15 @@ from cvs2svn_lib.bzr_output_option import BzrOutputOption
 
 
 class BzrRunOptions(DVCSRunOptions):
+  description="""\
+Convert a CVS repository into a Bazaar repository, including history.
+"""
 
-  short_desc = 'convert a cvs repository into a Bazaar repository'
+  short_desc = 'convert a CVS repository into a Bazaar repository'
 
   synopsis = """\
 .B cvs2bzr
-[\\fIOPTION\\fR]... \\fIOUTPUT-OPTIONS CVS-REPOS-PATH\\fR
+[\\fIOPTION\\fR]... \\fIOUTPUT-OPTIONS\\fR [\\fICVS-REPOS-PATH\\fR]
 .br
 .B cvs2bzr
 [\\fIOPTION\\fR]... \\fI--options=PATH\\fR
@@ -60,7 +64,8 @@ top level directory of a CVS repository; it can point at a project
 within a repository, in which case only that project will be
 converted.  This path or one of its parent directories has to contain
 a subdirectory called CVSROOT (though the CVSROOT directory can be
-empty).
+empty). If omitted, the repository path defaults to the current directory.
+
 .P
 It is not possible directly to convert a CVS repository to which you
 only have remote access, but the FAQ describes tools that may be used
@@ -68,18 +73,19 @@ to create a local copy of a remote CVS repository.
 """
 
   files = """\
-A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
+A directory under \\fI%s\\fR (or the directory specified by
 \\fB--tmpdir\\fR) is used as scratch space for temporary data files.
-"""
+""" % (tempfile.gettempdir(),)
 
   see_also = [
     ('cvs', '1'),
     ('bzr', '1'),
     ]
 
+  DEFAULT_USERNAME = 'cvs2bzr'
 
   def _get_output_options_group(self):
-    group = super(BzrRunOptions, self)._get_output_options_group()
+    group = DVCSRunOptions._get_output_options_group(self)
 
     group.add_option(IncompatibleOption(
         '--dumpfile', type='string',
@@ -104,7 +110,7 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
     return group
 
   def _get_extraction_options_group(self):
-    group = super(BzrRunOptions, self)._get_extraction_options_group()
+    group = DVCSRunOptions._get_extraction_options_group(self)
     self._add_use_cvs_option(group)
     self._add_use_rcs_option(group)
     return group

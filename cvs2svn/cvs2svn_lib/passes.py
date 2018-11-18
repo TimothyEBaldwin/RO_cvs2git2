@@ -689,6 +689,7 @@ class InitializeChangesetsPass(Pass):
       indexes = {}
       for (i, changeset_item) in enumerate(changeset_items):
         indexes[changeset_item.id] = i
+
       # How many internal dependencies would be broken by breaking the
       # Changeset after a particular index?
       breaks = [0] * len(changeset_items)
@@ -697,25 +698,22 @@ class InitializeChangesetsPass(Pass):
         succ_index = indexes[succ]
         breaks[min(pred_index, succ_index)] += 1
         breaks[max(pred_index, succ_index)] -= 1
-      best_i = None
-      best_count = -1
-      best_time = 0
       for i in range(1, len(breaks)):
         breaks[i] += breaks[i - 1]
+
+      best_i = None
+      best_count = -1
+      best_gap = 0
       for i in range(0, len(breaks) - 1):
-        if breaks[i] > best_count:
+        gap = changeset_items[i + 1].timestamp - changeset_items[i].timestamp
+        if (
+            breaks[i] > best_count
+            or breaks[i] == best_count and gap > best_gap
+            ):
           best_i = i
           best_count = breaks[i]
-          best_time = (changeset_items[i + 1].timestamp
-                       - changeset_items[i].timestamp)
-        elif breaks[i] == best_count \
-             and (changeset_items[i + 1].timestamp
-                  - changeset_items[i].timestamp) < best_time:
-          best_i = i
-          best_count = breaks[i]
-          best_time = (changeset_items[i + 1].timestamp
-                       - changeset_items[i].timestamp)
-      # Reuse the old changeset.id for the first of the split changesets.
+          best_gap = gap
+
       return [changeset_items[:best_i + 1], changeset_items[best_i + 1:]]
     else:
       return [changeset_items]

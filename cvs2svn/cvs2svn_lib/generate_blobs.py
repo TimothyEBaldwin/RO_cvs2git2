@@ -39,7 +39,7 @@ scratch space) in memory at a time.  But there are times when the
 fulltext of a revision is needed multiple times, for example when
 multiple branches sprout from the revision.  In these cases, the
 fulltext is written to disk.  If the fulltext is also needed for the
-blobfile, then the copy in the blobfils is read again when it is
+blobfile, then the copy in the blobfile is read again when it is
 needed.  If the fulltext is not needed in the blobfile, then it is
 written to a temporary file created with Python's tempfile module."""
 
@@ -185,10 +185,11 @@ class WriteBlobSink(Sink):
     while revrecs_to_remove:
       revrec = revrecs_to_remove.pop()
       del self.revrecs[revrec.rev]
-      base_revrec = self[revrec.base]
-      base_revrec.refs.remove(revrec.rev)
-      if not base_revrec.is_needed():
-        revrecs_to_remove.append(base_revrec)
+      if revrec.base is not None:
+        base_revrec = self[revrec.base]
+        base_revrec.refs.remove(revrec.rev)
+        if not base_revrec.is_needed():
+          revrecs_to_remove.append(base_revrec)
 
   def set_revision_info(self, rev, log, text):
     revrec = self.revrecs.get(rev)
@@ -209,11 +210,10 @@ class WriteBlobSink(Sink):
     elif self.last_revrec is not None and base_rev == self.last_revrec.rev:
       # Our base revision is stored in self.last_rcsstream.
       self.last_revrec.refs.remove(rev)
-      if self.last_revrec.is_needed():
-        if not self.last_revrec.is_written():
-          self.last_revrec.write(
-              self.fulltext_file, self.last_rcsstream.get_text()
-              )
+      if self.last_revrec.is_needed() and not self.last_revrec.is_written():
+        self.last_revrec.write(
+            self.fulltext_file, self.last_rcsstream.get_text()
+            )
       self.last_rcsstream.apply_diff(text)
       if revrec.mark is not None:
         revrec.write_blob(self.blobfile, self.last_rcsstream.get_text())
@@ -258,7 +258,11 @@ def main(args):
       (rcsfile, marks) = pickle.load(sys.stdin)
     except EOFError:
       break
-    parse(open(rcsfile, 'rb'), WriteBlobSink(blobfile, marks))
+    f = open(rcsfile, 'rb')
+    try:
+      parse(f, WriteBlobSink(blobfile, marks))
+    finally:
+      f.close()
 
   blobfile.close()
 

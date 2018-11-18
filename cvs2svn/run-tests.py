@@ -69,7 +69,7 @@ import svntest
 from svntest import Failure
 from svntest.main import safe_rmtree
 from svntest.testcase import TestCase
-from svntest.testcase import XFail
+from svntest.testcase import XFail_deco
 
 # Test if Mercurial >= 1.1 is available.
 try:
@@ -120,8 +120,8 @@ def run_program(program, error_re, *varargs):
   """Run PROGRAM with VARARGS, return stdout as a list of lines.
 
   If there is any stderr and ERROR_RE is None, raise
-  RunProgramException, and print the stderr lines if
-  svntest.main.options.verbose is true.
+  RunProgramException, and log the stderr lines via
+  svntest.main.logger.info().
 
   If ERROR_RE is not None, it is a string regular expression that must
   match some line of stderr.  If it fails to match, raise
@@ -142,11 +142,10 @@ def run_program(program, error_re, *varargs):
   else:
     # No stderr allowed.
     if err:
-      if svntest.main.options.verbose:
-        print '\n%s said:\n' % program
-        for line in err:
-          print '   ' + line,
-        print
+      log = svntest.main.logger.info
+      log('%s said:' % program)
+      for line in err:
+        log('   ' + line.rstrip())
       raise RunProgramException()
 
   return out
@@ -157,8 +156,8 @@ def run_script(script, error_re, *varargs):
   of lines.
 
   If there is any stderr and ERROR_RE is None, raise
-  RunProgramException, and print the stderr lines if
-  svntest.main.options.verbose is true.
+  RunProgramException, and log the stderr lines via
+  svntest.main.logger.info().
 
   If ERROR_RE is not None, it is a string regular expression that must
   match some line of stderr.  If it fails to match, raise
@@ -176,8 +175,8 @@ def run_script(script, error_re, *varargs):
 
 def run_svn(*varargs):
   """Run svn with VARARGS; return stdout as a list of lines.
-  If there is any stderr, raise RunProgramException, and print the
-  stderr lines if svntest.main.options.verbose is true."""
+  If there is any stderr, raise RunProgramException, and log the
+  stderr lines via svntest.main.logger.info()."""
   return run_program(svn_binary, None, *varargs)
 
 
@@ -221,7 +220,7 @@ class Log:
 
   def absorb_changed_paths(self, out):
     'Read changed paths from OUT into self, until no more.'
-    while 1:
+    while True:
       line = out.readline()
       if len(line) == 1: return
       line = line[:-1]
@@ -317,11 +316,13 @@ def parse_log(svn_repos, symbols):
 
   class LineFeeder:
     'Make a list of lines behave like an open file handle.'
+
     def __init__(self, lines):
-      self.lines = lines
+      self.lines = list(reversed(lines))
+
     def readline(self):
       if len(self.lines) > 0:
-        return self.lines.pop(0)
+        return self.lines.pop()
       else:
         return None
 
@@ -342,7 +343,7 @@ def parse_log(svn_repos, symbols):
 
   out = LineFeeder(run_svn('log', '-v', repos_to_url(svn_repos)))
 
-  while 1:
+  while True:
     this_log = None
     line = out.readline()
     if not line: break
@@ -357,11 +358,16 @@ def parse_log(svn_repos, symbols):
         this_log = Log(
             int(m.group('rev')), m.group('author'), m.group('date'), symbols)
         line = out.readline()
-        if not line.find('Changed paths:') == 0:
-          print 'unexpected log output (missing changed paths)'
+        if line == '\n':
+          # No changed paths
+          pass
+        elif line.startswith('Changed paths:'):
+          this_log.absorb_changed_paths(out)
+        else:
+          print 'unexpected log output'
           print "Line: '%s'" % line
           sys.exit(1)
-        this_log.absorb_changed_paths(out)
+
         absorb_message_body(out, int(m.group('lines')), this_log)
         logs[this_log.revision] = this_log
       elif len(line) == 0:
@@ -510,7 +516,7 @@ class Conversion:
 
   def __init__(
       self, conv_id, name, error_re, passbypass, symbols, args,
-      options_file=None, symbol_hints_file=None, dumpfile=None,
+      verbosity=None, options_file=None, symbol_hints_file=None, dumpfile=None,
       ):
     self.conv_id = conv_id
     self.name = name
@@ -536,22 +542,24 @@ class Conversion:
       erase(self._wc)
 
     args = list(args)
-    args.extend([
-        '--svnadmin=%s' % (svntest.main.svnadmin_binary,),
-        ])
+    if svntest.main.svnadmin_binary != 'svnadmin':
+      args.extend([
+          '--svnadmin=%s' % (svntest.main.svnadmin_binary,),
+          ])
     if options_file:
       self.options_file = os.path.join(cvsrepos, options_file)
       args.extend([
           '--options=%s' % self.options_file,
           ])
+      args.append(verbosity or '-qqqqqq')
       assert not symbol_hints_file
     else:
       self.options_file = None
-      if tmp_dir != 'cvs2svn-tmp':
-        # Only include this argument if it differs from cvs2svn's default:
-        args.extend([
-            '--tmpdir=%s' % tmp_dir,
-            ])
+      args.extend([
+          '--tmpdir=%s' % tmp_dir,
+          ])
+
+      args.append(verbosity or '-qqqqqq')
 
       if symbol_hints_file:
         self.symbol_hints_file = os.path.join(cvsrepos, symbol_hints_file)
@@ -598,9 +606,9 @@ class Conversion:
     for line in self.stdout:
       if pattern_re.match(line):
         # We found the pattern that we were looking for.
-        return 1
+        return True
     else:
-      return 0
+      return False
 
   def find_tag_log(self, tagname):
     """Search LOGS for a log message containing 'TAGNAME' and return the
@@ -666,7 +674,7 @@ class GitConversion:
 
     stdout -- a list of lines written by cvs2svn to stdout."""
 
-  def __init__(self, name, error_re, args, options_file=None):
+  def __init__(self, name, error_re, args, verbosity=None, options_file=None):
     self.name = name
     if not os.path.isdir(tmp_dir):
       os.mkdir(tmp_dir)
@@ -682,6 +690,8 @@ class GitConversion:
     else:
       self.options_file = None
 
+    args.append(verbosity or '-qqqqqq')
+
     self.stdout = run_script(cvs2git, error_re, *args)
 
 
@@ -692,7 +702,8 @@ already_converted = { }
 def ensure_conversion(
     name, error_re=None, passbypass=None,
     trunk=None, branches=None, tags=None,
-    args=None, options_file=None, symbol_hints_file=None, dumpfile=None,
+    args=None, verbosity=None,
+    options_file=None, symbol_hints_file=None, dumpfile=None,
     ):
   """Convert CVS repository NAME to Subversion, but only if it has not
   been converted before by this invocation of this script.  If it has
@@ -717,6 +728,10 @@ def ensure_conversion(
   being one option, e.g., '--trunk-only'.  If the option takes an
   argument, include it directly, e.g., '--mime-types=PATH'.  Arguments
   are passed to cvs2svn in the order that they appear in ARGS.
+
+  If VERBOSITY is set, then it is passed to cvs2svn as an option.
+  Otherwise, the verbosity is turned way down so that only error
+  messages are emitted.
 
   If OPTIONS_FILE is specified, then it should be the name of a file
   within the main directory of the cvs repository associated with this
@@ -762,7 +777,7 @@ def ensure_conversion(
       already_converted[conv_id] = Conversion(
           conv_id, name, error_re, passbypass,
           {'trunk' : trunk, 'branches' : branches, 'tags' : tags},
-          args, options_file, symbol_hints_file, dumpfile,
+          args, verbosity, options_file, symbol_hints_file, dumpfile,
           )
     except Failure:
       # Remember the failure so that a future attempt to run this conversion
@@ -941,6 +956,7 @@ def cvs2git_manpage():
   out = run_script(cvs2git, None, '--man')
 
 
+@XFail_deco()
 @Cvs2HgTestFunction
 def cvs2hg_manpage():
   "generate a manpage for cvs2hg"
@@ -959,6 +975,11 @@ def show_help_passes():
 def attr_exec():
   "detection of the executable flag"
   if sys.platform == 'win32':
+    raise svntest.Skip()
+  st = os.stat(os.path.join('test-data', 'main-cvsrepos', 'single-files', 'attr-exec,v'))
+  if not st.st_mode & stat.S_IXUSR:
+    # This might be the case if the test is being run on a filesystem
+    # that is mounted "noexec".
     raise svntest.Skip()
   conv = ensure_conversion('main')
   st = os.stat(conv.get_wc('trunk', 'single-files', 'attr-exec'))
@@ -1390,10 +1411,11 @@ def bogus_tag():
 @Cvs2SvnTestFunction
 def overlapping_branch():
   "ignore a file with a branch with two names"
-  conv = ensure_conversion('overlapping-branch')
-
-  if not conv.output_found('.*cannot also have name \'vendorB\''):
-    raise Failure()
+  conv = ensure_conversion(
+    'overlapping-branch',
+    verbosity='-qq',
+    error_re='.*cannot also have name \'vendorB\'',
+    )
 
   conv.logs[2].check('imported', (
     ('/%(trunk)s/nonoverlapping-branch', 'A'),
@@ -1574,6 +1596,26 @@ class BranchDeleteFirst(Cvs2SvnTestCase):
 
 
 @Cvs2SvnTestFunction
+def nonascii_cvsignore():
+  "non ascii files in .cvsignore"
+
+  # The output seems to be in the C locale, where it looks like this
+  # (at least on one test system):
+  expected = (
+    'Sp?\\195?\\164tzle\n'
+    'Cr?\\195?\\168meBr?\\195?\\187l?\\195?\\169e\n'
+    'Jam?\\195?\\179nIb?\\195?\\169rico\n'
+    'Am?\\195?\\170ijoas?\\195?\\128Bulh?\\195?\\163oPato\n'
+    )
+
+  conv = ensure_conversion('non-ascii', args=['--encoding=latin1'])
+  props = props_for_path(conv.get_wc_tree(), 'trunk/single-files')
+
+  if props['svn:ignore'] != expected:
+    raise Failure()
+
+
+@Cvs2SvnTestFunction
 def nonascii_filenames():
   "non ascii files converted incorrectly"
   # see issue #1255
@@ -1624,18 +1666,19 @@ def nonascii_filenames():
     raise svntest.Skip()
 
   try:
-    srcrepos_path = os.path.join(test_data_dir,'main-cvsrepos')
-    dstrepos_path = os.path.join(test_data_dir,'non-ascii-cvsrepos')
+    srcrepos_path = os.path.join(test_data_dir, 'non-ascii-cvsrepos')
+    dstrepos_path = os.path.join(test_data_dir, 'non-ascii-copy-cvsrepos')
     if not os.path.exists(dstrepos_path):
       # create repos from existing main repos
       shutil.copytree(srcrepos_path, dstrepos_path)
       base_path = os.path.join(dstrepos_path, 'single-files')
+      os.remove(os.path.join(base_path, '.cvsignore,v'))
       shutil.copyfile(os.path.join(base_path, 'twoquick,v'),
                       os.path.join(base_path, 'two\366uick,v'))
       new_path = os.path.join(dstrepos_path, 'single\366files')
       os.rename(base_path, new_path)
 
-    conv = ensure_conversion('non-ascii', args=['--encoding=latin1'])
+    conv = ensure_conversion('non-ascii-copy', args=['--encoding=latin1'])
   finally:
     if locale_changed:
       locale.setlocale(locale.LC_ALL, current_locale)
@@ -2516,6 +2559,7 @@ def double_fill():
   # conversion doesn't fail.
 
 
+@XFail_deco()
 @Cvs2SvnTestFunction
 def double_fill2():
   "reveal a second bug that created a branch twice"
@@ -3122,10 +3166,11 @@ def delete_cvsignore():
 def repeated_deltatext():
   "ignore repeated deltatext blocks with warning"
 
-  conv = ensure_conversion('repeated-deltatext')
-  warning_re = r'.*Deltatext block for revision 1.1 appeared twice'
-  if not conv.output_found(warning_re):
-    raise Failure()
+  conv = ensure_conversion(
+    'repeated-deltatext',
+    verbosity='-qq',
+    error_re=r'.*Deltatext block for revision 1.1 appeared twice',
+    )
 
 
 @Cvs2SvnTestFunction
@@ -3137,6 +3182,7 @@ def nasty_graphs():
   conv = ensure_conversion('nasty-graphs')
 
 
+@XFail_deco()
 @Cvs2SvnTestFunction
 def tagging_after_delete():
   "optimal tag after deleting files"
@@ -3302,7 +3348,7 @@ def internal_co_keywords():
 def timestamp_chaos():
   "test timestamp adjustments"
 
-  conv = ensure_conversion('timestamp-chaos', args=["-v"])
+  conv = ensure_conversion('timestamp-chaos')
 
   # The times are expressed here in UTC:
   times = [
@@ -3493,6 +3539,39 @@ def main_git2():
 
 
 @Cvs2SvnTestFunction
+def main_git_merged():
+  "cvs2git with no blobfile"
+
+  # Note: To test importing into git, do
+  #
+  #     ./run-tests <this-test-number>
+  #     rm -rf cvs2svn-tmp/main.git
+  #     git init --bare cvs2svn-tmp/main.git
+  #     cd cvs2svn-tmp/main.git
+  #     cat ../git-dump.dat | git fast-import
+
+  conv = GitConversion('main', None, [
+      '--dumpfile=cvs2svn-tmp/git-dump.dat',
+      '--username=cvs2git',
+      'test-data/main-cvsrepos',
+      ])
+
+
+@Cvs2SvnTestFunction
+def main_git2_merged():
+  "cvs2git external with no blobfile"
+
+  # See comment in main_git_merged() for more information.
+
+  conv = GitConversion('main', None, [
+      '--use-external-blob-generator',
+      '--dumpfile=cvs2svn-tmp/dumpfile.out',
+      '--username=cvs2git',
+      'test-data/main-cvsrepos',
+      ])
+
+
+@Cvs2SvnTestFunction
 def git_options():
   "test cvs2git using options file"
 
@@ -3515,11 +3594,11 @@ def main_hg():
 def invalid_symbol():
   "a symbol with the incorrect format"
 
-  conv = ensure_conversion('invalid-symbol')
-  if not conv.output_found(
-        r".*branch 'SYMBOL' references invalid revision 1$"
-        ):
-    raise Failure()
+  conv = ensure_conversion(
+    'invalid-symbol',
+    verbosity='-qq',
+    error_re=r".*branch 'SYMBOL' references invalid revision 1$",
+    )
 
 
 @Cvs2SvnTestFunction
@@ -3616,6 +3695,7 @@ def mirror_keyerror3_test():
   conv = ensure_conversion('mirror-keyerror3')
 
 
+@XFail_deco()
 @Cvs2SvnTestFunction
 def add_cvsignore_to_branch_test():
   "check adding .cvsignore to an existing branch"
@@ -3967,11 +4047,9 @@ def missing_vendor_branch():
 
   conv = ensure_conversion(
       'missing-vendor-branch',
+      verbosity='-qq',
+      error_re=r'.*vendor branch \'1\.1\.1\' is not present in file and will be ignored',
       )
-  if not conv.output_found(
-      r'.*vendor branch \'1\.1\.1\' is not present in file and will be ignored'
-      ):
-    raise Failure()
 
 
 @Cvs2SvnTestFunction
@@ -3980,6 +4058,15 @@ def newphrases():
 
   ensure_conversion(
       'newphrases',
+      )
+
+
+@Cvs2SvnTestFunction
+def vendor_1_1_not_root():
+  "supposed vendor 1.1 commit is not a root commit"
+
+  ensure_conversion(
+      'vendor-1-1-non-root',
       )
 
 
@@ -3993,7 +4080,7 @@ test_list = [
     show_usage,
     cvs2svn_manpage,
     cvs2git_manpage,
-    XFail(cvs2hg_manpage),
+    cvs2hg_manpage,
     attr_exec,
     space_fname,
     two_quick,
@@ -4035,6 +4122,7 @@ test_list = [
 # 40:
     BranchDeleteFirst(),
     BranchDeleteFirst(variant=1, trunk='a/1', branches='a/2', tags='a/3'),
+    nonascii_cvsignore,
     nonascii_filenames,
     UnicodeAuthor(
         warning_expected=1),
@@ -4052,8 +4140,8 @@ test_list = [
     UnicodeLog(
         warning_expected=0,
         variant='fallback-encoding', args=['--fallback-encoding=utf_8']),
-    vendor_branch_sameness,
 # 50:
+    vendor_branch_sameness,
     vendor_branch_trunk_only,
     default_branches,
     default_branches_trunk_only,
@@ -4063,8 +4151,8 @@ test_list = [
     PeerPathPruning(),
     PeerPathPruning(variant=1, trunk='a/1', branches='a/2', tags='a/3'),
     EmptyTrunk(),
-    EmptyTrunk(variant=1, trunk='a', branches='b', tags='c'),
 # 60:
+    EmptyTrunk(variant=1, trunk='a', branches='b', tags='c'),
     EmptyTrunk(variant=2, trunk='a/1', branches='a/2', tags='a/3'),
     no_spurious_svn_commits,
     invalid_closings_on_trunk,
@@ -4074,8 +4162,8 @@ test_list = [
     file_in_attic_too,
     retain_file_in_attic_too,
     symbolic_name_filling_guide,
-    eol_mime1,
 # 70:
+    eol_mime1,
     eol_mime2,
     eol_mime3,
     eol_mime4,
@@ -4085,19 +4173,19 @@ test_list = [
     ignore,
     requires_cvs,
     questionable_branch_names,
-    questionable_tag_names,
 # 80:
+    questionable_tag_names,
     revision_reorder_bug,
     exclude,
     vendor_branch_delete_add,
     resync_pass2_pull_forward,
     native_eol,
     double_fill,
-    XFail(double_fill2),
+    double_fill2,
     resync_pass2_push_backward,
     double_add,
-    bogus_branch_copy,
 # 90:
+    bogus_branch_copy,
     nested_ttb_directories,
     auto_props_ignore_case,
     ctrl_char_in_filename,
@@ -4107,8 +4195,8 @@ test_list = [
     multiply_defined_symbols,
     multiply_defined_symbols_renamed,
     multiply_defined_symbols_ignored,
-    repeatedly_defined_symbols,
 # 100:
+    repeatedly_defined_symbols,
     double_branch_delete,
     symbol_mismatches,
     overlook_symbol_mismatches,
@@ -4118,8 +4206,8 @@ test_list = [
     unblock_blocked_excludes,
     regexp_force_symbols,
     heuristic_symbol_default,
-    branch_symbol_default,
 # 110:
+    branch_symbol_default,
     tag_symbol_default,
     symbol_transform,
     write_symbol_info,
@@ -4129,8 +4217,8 @@ test_list = [
     parent_hints_wildcards,
     path_hints,
     issue_99,
-    issue_100,
 # 120:
+    issue_100,
     issue_106,
     options_option,
     multiproject,
@@ -4139,9 +4227,9 @@ test_list = [
     delete_cvsignore,
     repeated_deltatext,
     nasty_graphs,
-    XFail(tagging_after_delete),
-    crossed_branches,
+    tagging_after_delete,
 # 130:
+    crossed_branches,
     file_directory_conflict,
     attic_directory_conflict,
     use_rcs,
@@ -4151,8 +4239,8 @@ test_list = [
     leftover_revs,
     requires_internal_co,
     timestamp_chaos,
-    symlinks,
 # 140:
+    symlinks,
     empty_trunk_path,
     preferred_parent_cycle,
     branch_from_empty_dir,
@@ -4161,9 +4249,11 @@ test_list = [
     add_on_branch,
     main_git,
     main_git2,
+    main_git_merged,
+# 150:
+    main_git2_merged,
     git_options,
     main_hg,
-# 150:
     invalid_symbol,
     invalid_symbol_ignore,
     invalid_symbol_ignore2,
@@ -4171,21 +4261,21 @@ test_list = [
     EOLVariants('CR'),
     EOLVariants('CRLF'),
     EOLVariants('native'),
+# 160:
     no_revs_file,
     mirror_keyerror_test,
     exclude_ntdb_test,
-# 160:
     mirror_keyerror2_test,
     mirror_keyerror3_test,
-    XFail(add_cvsignore_to_branch_test),
+    add_cvsignore_to_branch_test,
     missing_deltatext,
     transform_unlabeled_branch_name,
     ignore_unlabeled_branch,
     exclude_unlabeled_branch,
+# 170:
     unlabeled_branch_name_collision,
     collision_with_unlabeled_branch_name,
     many_deletes,
-# 170:
     cvs_description,
     include_empty_directories,
     include_empty_directories_no_prune,
@@ -4193,11 +4283,12 @@ test_list = [
     add_on_branch2,
     branch_from_vendor_branch,
     strange_default_branch,
+# 180:
     move_parent,
     log_message_eols,
     missing_vendor_branch,
-# 180:
     newphrases,
+    vendor_1_1_not_root,
     ]
 
 if __name__ == '__main__':

@@ -18,7 +18,7 @@
 Git, Mercurial, or Bazaar).
 """
 
-import sys
+import os, sys
 
 from cvs2svn_lib import config
 from cvs2svn_lib.common import FatalError
@@ -62,11 +62,14 @@ class KeywordHandlingPropertySetter(FilePropertySetter):
 
 
 class DVCSRunOptions(RunOptions):
-  """Dumping ground for whatever is common to GitRunOptions and
-  HgRunOptions."""
+  """Dumping ground for whatever is common to GitRunOptions,
+  HgRunOptions, and BzrRunOptions."""
+
   def __init__(self, progname, cmd_args, pass_manager):
     Ctx().cross_project_commits = False
     Ctx().cross_branch_commits = False
+    if Ctx().username is None:
+      Ctx().username = self.DEFAULT_USERNAME
     RunOptions.__init__(self, progname, cmd_args, pass_manager)
 
   def set_project(
@@ -98,7 +101,7 @@ class DVCSRunOptions(RunOptions):
     self.project_symbol_strategy_rules = [symbol_strategy_rules]
 
   def process_property_setter_options(self):
-    super(DVCSRunOptions, self).process_property_setter_options()
+    RunOptions.process_property_setter_options(self)
 
     # Property setters for internal use:
     Ctx().file_property_setters.append(
@@ -108,8 +111,8 @@ class DVCSRunOptions(RunOptions):
   def process_options(self):
     # Consistency check for options and arguments.
     if len(self.args) == 0:
-      self.usage()
-      sys.exit(1)
+      # Default to using '.' as the source repository path
+      self.args.append(os.getcwd())
 
     if len(self.args) > 1:
       logger.error(error_prefix + ": must pass only one CVS repository.\n")

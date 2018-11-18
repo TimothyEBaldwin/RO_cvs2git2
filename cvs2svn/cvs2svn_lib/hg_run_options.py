@@ -14,6 +14,8 @@
 # history and logs, available at http://cvs2svn.tigris.org/.
 # ====================================================================
 
+import tempfile
+
 from cvs2svn_lib.context import Ctx
 from cvs2svn_lib.run_options import IncompatibleOption
 from cvs2svn_lib.dvcs_common import DVCSRunOptions
@@ -21,12 +23,15 @@ from cvs2svn_lib.hg_output_option import HgOutputOption
 
 
 class HgRunOptions(DVCSRunOptions):
+  description="""\
+Convert a CVS repository into a Mercurial repository, including history.
+"""
 
-  short_desc = 'convert a cvs repository into a Mercurial repository'
+  short_desc = 'convert a CVS repository into a Mercurial repository'
 
   synopsis = """\
 .B cvs2hg
-[\\fIOPTION\\fR]... \\fIOUTPUT-OPTION CVS-REPOS-PATH\\fR
+[\\fIOPTION\\fR]... \\fIOUTPUT-OPTION\\fR [\\fICVS-REPOS-PATH\\fR
 .br
 .B cvs2hg
 [\\fIOPTION\\fR]... \\fI--options=PATH\\fR
@@ -46,7 +51,8 @@ more information.  This path doesn't have to be the top level
 directory of a CVS repository; it can point at a project within a
 repository, in which case only that project will be converted.  This
 path or one of its parent directories has to contain a subdirectory
-called CVSROOT (though the CVSROOT directory can be empty).
+called CVSROOT (though the CVSROOT directory can be empty). If
+omitted, the repository path defaults to the current directory.
 .P
 Unlike CVS or Subversion, Mercurial expects each repository to hold
 one independent project.  If your CVS repository contains multiple
@@ -57,21 +63,22 @@ independent Mercurial repositories with multiple runs of
 
   # XXX copied from svn_run_options.py
   files = """\
-A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
+A directory under \\fI%s\\fR (or the directory specified by
 \\fB--tmpdir\\fR) is used as scratch space for temporary data files.
-"""
+""" % (tempfile.gettempdir(),)
 
   # XXX the cvs2{svn,git,bzr,hg} man pages should probably reference
   # each other
   see_also = [
-  ('cvs', '1'),
-  ('hg', '1'),
-  ]
+    ('cvs', '1'),
+    ('hg', '1'),
+    ]
+
+  DEFAULT_USERNAME = 'cvs2hg'
 
   def __init__(self, *args, **kwargs):
     # Override some default values
     ctx = Ctx()
-    ctx.username = "cvs2hg"
     ctx.symbol_commit_message = (
       "artificial changeset to create "
       "%(symbol_type)s '%(symbol_name)s'")
@@ -79,7 +86,7 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
       "artificial changeset: compensate for changes in %(revnum)s "
       "(on non-trunk default branch in CVS)")
 
-    super(HgRunOptions, self).__init__(*args, **kwargs)
+    DVCSRunOptions.__init__(self, *args, **kwargs)
 
   # This is a straight copy of SVNRunOptions._get_extraction_options_group();
   # would be nice to refactor, but it's a bit awkward because GitRunOptions
@@ -92,7 +99,7 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
     return group
 
   def _get_output_options_group(self):
-    group = super(HgRunOptions, self)._get_output_options_group()
+    group = DVCSRunOptions._get_output_options_group(self)
 
     # XXX what if the hg repo already exists? die, clobber, or append?
     # (currently we die at the start of OutputPass)

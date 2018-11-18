@@ -16,8 +16,8 @@
 
 """This module manages cvs2git run options."""
 
+import tempfile
 
-from cvs2svn_lib.common import FatalError
 from cvs2svn_lib.context import Ctx
 from cvs2svn_lib.dvcs_common import DVCSRunOptions
 from cvs2svn_lib.run_options import ContextOption
@@ -34,12 +34,15 @@ from cvs2svn_lib.git_output_option import GitOutputOption
 
 
 class GitRunOptions(DVCSRunOptions):
+  description="""\
+Convert a CVS repository into a Git repository, including history.
+"""
 
-  short_desc = 'convert a cvs repository into a git repository'
+  short_desc = 'convert a CVS repository into a git repository'
 
   synopsis = """\
 .B cvs2git
-[\\fIOPTION\\fR]... \\fIOUTPUT-OPTIONS CVS-REPOS-PATH\\fR
+[\\fIOPTION\\fR]... [\\fIOUTPUT-OPTIONS\\fR] [\\fICVS-REPOS-PATH\\fR]
 .br
 .B cvs2git
 [\\fIOPTION\\fR]... \\fI--options=PATH\\fR
@@ -60,7 +63,7 @@ top level directory of a CVS repository; it can point at a project
 within a repository, in which case only that project will be
 converted.  This path or one of its parent directories has to contain
 a subdirectory called CVSROOT (though the CVSROOT directory can be
-empty).
+empty). If omitted, the repository path defaults to the current directory.
 .P
 It is not possible directly to convert a CVS repository to which you
 only have remote access, but the FAQ describes tools that may be used
@@ -68,9 +71,9 @@ to create a local copy of a remote CVS repository.
 """
 
   files = """\
-A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
+A directory under \\fI%s\\fR (or the directory specified by
 \\fB--tmpdir\\fR) is used as scratch space for temporary data files.
-"""
+""" % (tempfile.gettempdir(),)
 
   see_also = [
     ('cvs', '1'),
@@ -78,9 +81,10 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
     ('git-fast-import', '1'),
     ]
 
+  DEFAULT_USERNAME = 'cvs2git'
 
   def _get_output_options_group(self):
-    group = super(GitRunOptions, self)._get_output_options_group()
+    group = DVCSRunOptions._get_output_options_group(self)
 
     group.add_option(IncompatibleOption(
         '--blobfile', type='string',
@@ -88,7 +92,8 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
         help='path to which the "blob" data should be written',
         man_help=(
             'Write the "blob" data (containing revision contents) to '
-            '\\fIpath\\fR.'
+            '\\fIpath\\fR.  If not set, the blob data is written to the '
+            'same destination as the dumpfile output.'
             ),
         metavar='PATH',
         ))
@@ -97,7 +102,8 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
         action='store',
         help='path to which the revision data should be written',
         man_help=(
-            'Write the revision data (branches and commits) to \\fIpath\\fR.'
+            'Write the revision data (branches and commits) to \\fIpath\\fR.  '
+            'If not set, output goes to stdout.'
             ),
         metavar='PATH',
         ))
@@ -115,7 +121,7 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
     return group
 
   def _get_extraction_options_group(self):
-    group = super(GitRunOptions, self)._get_extraction_options_group()
+    group = DVCSRunOptions._get_extraction_options_group(self)
     self._add_use_cvs_option(group)
     self._add_use_rcs_option(group)
     self.parser.set_default('use_external_blob_generator', False)
@@ -163,11 +169,10 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
       ctx.revision_collector = NullRevisionCollector()
       return
 
-    if not (options.blobfile and options.dumpfile):
-      raise FatalError("must pass '--blobfile' and '--dumpfile' options.")
-
     if options.use_external_blob_generator:
-      ctx.revision_collector = ExternalBlobGenerator(options.blobfile)
+      ctx.revision_collector = ExternalBlobGenerator(
+          blob_filename=options.blobfile,
+          )
     else:
       if options.use_rcs:
         revision_reader = RCSRevisionReader(
@@ -179,7 +184,7 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
             cvs_executable=options.cvs_executable
             )
       ctx.revision_collector = GitRevisionCollector(
-          options.blobfile, revision_reader,
+          revision_reader, blob_filename=options.blobfile,
           )
 
   def process_output_options(self):
@@ -189,8 +194,8 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
       ctx.output_option = NullOutputOption()
     else:
       ctx.output_option = GitOutputOption(
-          self.options.dumpfile,
           GitRevisionMarkWriter(),
+          dump_filename=self.options.dumpfile,
           # Optional map from CVS author names to git author names:
           author_transforms={}, # FIXME
           )

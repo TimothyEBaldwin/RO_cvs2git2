@@ -93,7 +93,7 @@ class ManWriter(object):
         '.TH %s "%s" "%s" "%s" "%s"\n' % (
             self.parser.get_prog_name().upper(),
             self.section,
-            self.date.strftime('%b %d, %Y'),
+            self.date.strftime('%Y-%m-%d'),
             self.source,
             self.manual,
             )
@@ -182,7 +182,7 @@ class ManWriter(object):
     f.write(".PP\n")
     f.write(
       "Manpage was written for the Debian GNU/Linux system by\n"
-      "Laszlo 'GCS' Boszormenyi <gcs@lsc.hu> (but may be used by others).\n")
+      "Laszlo 'GCS' Boszormenyi <gcs@debian.org> (but may be used by others).\n")
 
   def write_see_also(self, f):
     f.write('.SH "SEE ALSO"\n')

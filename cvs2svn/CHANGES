@@ -1,3 +1,30 @@
+Version 2.5.0 (26 November 2017)
+--------------------------------
+
+ Bugs fixed:
+ * Handle non-ASCII, non-UTF8 filenames in .cvsignore files.
+ * ExternalBlobGenerator: Don't fail if no revisions are needed for a file.
+ * Fix the handling of symbol-matching regexps that include "|".
+ * Handle excluded paths under Attic directories, too.
+ * cvs2git: fix logging in process_post_commit().
+ * Prefer to break internal cycles at the *largest* timestamp gaps.
+ * Don't try to delete a supposed "revision 1.1" if it has a predecessor.
+
+ Improvements and output changes:
+ * Various small documentation fixes and improvements.
+ * Make cvs2xxx runnable under PyPy.
+ * Avoid some allusions to Subversion when converting to another VCS.
+ * Use tempfile.mkdtemp() to choose the location for temporary files.
+ * Write all progress information to stderr rather than stdout.
+ * Write cvs2git and cvs2bzr output to stdout by default.
+ * Improve build reproducibility by respecting $SOURCE_DATE_EPOCH.
+ * cvs2git: don't add so much useless metadata to symbol commits.
+ * cvs2git: allow a file to be set executable in Git via "svn:executable"
+
+ Miscellaneous:
+ * Use "co --version" rather than the deprecated "co -V".
+
+
 Version 2.4.0 (22 September 2012)
 ---------------------------------
 

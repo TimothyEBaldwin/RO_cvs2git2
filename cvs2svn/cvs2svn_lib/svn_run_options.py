@@ -16,6 +16,7 @@
 
 """This module manages cvs2svn run options."""
 
+import tempfile
 
 import sys
 import optparse
@@ -97,11 +98,15 @@ class SVNKeywordHandlingPropertySetter(FilePropertySetter):
 
 
 class SVNRunOptions(RunOptions):
+  description="""\
+Convert a CVS repository into a Subversion repository, including history.
+"""
+
   short_desc = 'convert a CVS repository into a Subversion repository'
 
   synopsis = """\
 .B cvs2svn
-[\\fIOPTION\\fR]... \\fIOUTPUT-OPTION CVS-REPOS-PATH\\fR
+[\\fIOPTION\\fR]... \\fIOUTPUT-OPTION\\fR [\\fICVS-REPOS-PATH\\fR]
 .br
 .B cvs2svn
 [\\fIOPTION\\fR]... \\fI--options=PATH\\fR
@@ -120,7 +125,8 @@ more information.  This path doesn't have to be the top level
 directory of a CVS repository; it can point at a project within a
 repository, in which case only that project will be converted.  This
 path or one of its parent directories has to contain a subdirectory
-called CVSROOT (though the CVSROOT directory can be empty).
+called CVSROOT (though the CVSROOT directory can be empty). If omitted,
+the repository path defaults to the current directory.
 .P
 Multiple CVS repositories can be converted into a single Subversion
 repository in a single run of cvs2svn, but only by using an
@@ -128,9 +134,9 @@ repository in a single run of cvs2svn, but only by using an
 """
 
   files = """\
-A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
+A directory under \\fI%s\\fR (or the directory specified by
 \\fB--tmpdir\\fR) is used as scratch space for temporary data files.
-"""
+""" % (tempfile.gettempdir(),)
 
   see_also = [
     ('cvs', '1'),
@@ -138,8 +144,10 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
     ('svnadmin', '1'),
     ]
 
+  DEFAULT_USERNAME = None
+
   def _get_output_options_group(self):
-    group = super(SVNRunOptions, self)._get_output_options_group()
+    group = RunOptions._get_output_options_group(self)
 
     group.add_option(IncompatibleOption(
         '--svnrepos', '-s', type='string',
@@ -249,7 +257,7 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
     return group
 
   def _get_conversion_options_group(self):
-    group = super(SVNRunOptions, self)._get_conversion_options_group()
+    group = RunOptions._get_conversion_options_group(self)
 
     self.parser.set_default('trunk_base', config.DEFAULT_TRUNK_BASE)
     group.add_option(IncompatibleOption(
@@ -332,14 +340,14 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
     return group
 
   def _get_extraction_options_group(self):
-    group = super(SVNRunOptions, self)._get_extraction_options_group()
+    group = RunOptions._get_extraction_options_group(self)
     self._add_use_internal_co_option(group)
     self._add_use_cvs_option(group)
     self._add_use_rcs_option(group)
     return group
 
   def _get_environment_options_group(self):
-    group = super(SVNRunOptions, self)._get_environment_options_group()
+    group = RunOptions._get_environment_options_group(self)
 
     group.add_option(ContextOption(
         '--svnadmin', type='string',
@@ -487,7 +495,7 @@ A directory called \\fIcvs2svn-tmp\\fR (or the directory specified by
     del self.project_symbol_strategy_rules[:]
 
   def process_property_setter_options(self):
-    super(SVNRunOptions, self).process_property_setter_options()
+    RunOptions.process_property_setter_options(self)
 
     # Property setters for internal use:
     Ctx().file_property_setters.append(SVNEOLFixPropertySetter())
