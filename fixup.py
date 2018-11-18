@@ -249,20 +249,11 @@ if merge_base("apache_RiscOS_Sources_Apps_Toolbox_ResEd"):
 if merge_base("apache_RiscOS_Sources_Apps_TTXTViewer"):
     pass
 
-if merge_base("apache_RiscOS_Sources_Desktop_Clipboard"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Desktop_Desktop"):
-    pass
-
-if merge_base("apache_RiscOS_Sources_Desktop_DragAnObj"):
-    pass
-
 if merge_base("apache_RiscOS_Sources_Desktop_DragASprit"):
-    pass
+    merge("DragASprit-0_13", "Ursula_merge")
 
 if merge_base("apache_RiscOS_Sources_Desktop_Filer"):
-    pass
+    merge("Filer-1_96", "Ursula_merge", 1)
 
 if merge_base("apache_RiscOS_Sources_Desktop_FilerAct"):
     pass
