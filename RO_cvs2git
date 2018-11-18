@@ -17,10 +17,11 @@
 set -e -o pipefail
 cd "$(dirname "$0")"
 unset $(compgen -v GIT)
-mkdir -p split
+mkdir -p git split cvsroot/CVSROOT
 
+bwrap=(bwrap --unsetenv TMPDIR --cap-drop ALL --die-with-parent --unshare-all --proc /proc --dev /dev --dir /tmp )
 
-bwrap=(bwrap  --new-session --unsetenv TMPDIR --cap-drop ALL --die-with-parent --unshare-all --proc /proc --dev /dev --dir /tmp)
+make -f sandbox.mk
 
 for i in /etc/alternatives /usr /bin /sbin /lib*
 do
@@ -33,57 +34,57 @@ done
 
 "${bwrap[@]}" --bind cvs-fast-export /s --tmpfs /s/.git make -j$(getconf _NPROCESSORS_ONLN) -C /s -k cvs-fast-export
 
-fixup() {
-  "${bwrap[@]}" --bind "$1" /g --ro-bind fixup.py /fixup.py --chdir /g python3 /fixup.py
-}
-
-prepare_git() { (
+prepare_git() {
   mkdir -p "$1"
   cd "$1"
   ! rm -rf .git
-  "${bwrap[@]}" --bind . /g --chdir /g git init .
+  git init .
   echo "ref: refs/heads/$2_master" > .git/HEAD
-) }
+}
 
 convert() {
   set -e -o pipefail
   echo Processing ${1}...
   prefix="${1//\//_}"
-  exec >"split/${prefix}_log"
+  exec >"/split/${prefix}_log"
   exec 2>&1
   echo
   echo Processing ${1}...
-  eval "bwrap=($bwrap2)"
   if [[ -v split ]]; then
-    git="split/${prefix}"
-    prepare_git "$git" "${prefix}"
-  else
-    git="git"
+    prepare_git "/split/${prefix}" "${prefix}"
   fi
   dir="/home/rool/rab/cvsroot"
-  "${bwrap[@]}" --ro-bind "cvsroot/$1" "$dir/$1" find "$dir/$1" -type f | \
-  "${bwrap[@]}" --ro-bind "cvsroot/$1" "$dir/$1" --ro-bind cvs-fast-export/cvs-fast-export /cfe \
+  find "$dir/$1" -type f | \
   /cfe --strip "$dir/$1" --commit-time-window 600 --tag-prefix "refs/original/tags/${prefix}_" --branch-prefix "refs/original/heads/${prefix}_"  --verbose | \
-  "${bwrap[@]}" --bind "$git" /g --chdir /g git fast-import
+  git fast-import
   if [[ -v split ]]; then
-    fixup "$git"
+    python3 /fixup.py
   fi
   echo ${1} Processed
 }
 
-export bwrap2="${bwrap[@]@Q}" split
-export -f convert fixup prepare_git
 
-if [[ ! -v split ]]; then
-  prepare_git git apache_RiscOS_Sources_Kernel
-fi
 
-(
-  cd cvsroot
-  perl -ne '/^([a-zA-Z]+[^\s]*)\s/; $_ = $1; tr:.:/:; print "$_\n" if -d $_;' Products/*/modules,v
-  printf "%s\n" Products/*
-) | sort -u | parallel convert
+process() {
 
-if [[ ! -v split ]]; then
-  fixup git
-fi
+  if [[ ! -v split ]]; then
+    prepare_git git apache_RiscOS_Sources_Kernel
+  fi
+
+  (
+    cd /home/rool/rab/cvsroot
+    perl -ne '/^([a-zA-Z]+[^\s]*)\s/; $_ = $1; tr:.:/:; print "$_\n" if -d $_;' Products/*/modules,v
+    printf "%s\n" Products/*
+  ) | sort -u | parallel convert
+
+  if [[ ! -v split ]]; then
+    python3 /fixup.py
+  fi
+
+}
+
+export -f convert prepare_git process
+
+"${bwrap[@]}"  --seccomp 9 9<seccomp --bind cvsroot/CVSROOT /c/CVSROOT cvs -d /c init
+
+"${bwrap[@]}"  --seccomp 9 9<seccomp --ro-bind cvsroot /home/rool/rab/cvsroot --bind git /git --bind split /split --ro-bind fixup.py /fixup.py --ro-bind cvs-fast-export/cvs-fast-export /cfe --chdir / bash -c process
