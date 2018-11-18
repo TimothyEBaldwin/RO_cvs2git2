@@ -77,7 +77,7 @@ def rewrite(c):
 
 def fix_redudant_commits():
     for key, c in refs.items():
-        if c.message.startswith("Synthetic commit for incomplete tag ") and c.tree_id == c.parents[0].tree_id:
+        if c.message.startswith("This commit was manufactured by cvs2svn to create tag") and c.tree_id == c.parents[0].tree_id:
             refs[key] = c.parents[0]
 
 

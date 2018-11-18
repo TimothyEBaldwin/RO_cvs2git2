@@ -32,8 +32,6 @@ do
   fi
 done
 
-"${bwrap[@]}" --bind cvs-fast-export /s --tmpfs /s/.git make -j$(getconf _NPROCESSORS_ONLN) -C /s -k cvs-fast-export
-
 prepare_git() {
   mkdir -p "$1"
   cd "$1"
@@ -42,21 +40,27 @@ prepare_git() {
   echo "ref: refs/heads/$2_master" > .git/HEAD
 }
 
+convert2() {
+  set -e -o pipefail
+  /cvs2svn/cvs2git "/home/rool/rab/cvsroot/$0" --encoding=cp437 --tmpdir /tmp/tmp --blobfile /tmp/blob --dumpfile /tmp/dump --username=cvs2git >&2
+  cat /tmp/blob
+  sed /tmp/dump -E -e "s:refs/(heads|tags)/:refs/original/\\1/$1_:g"
+}
+
 convert() {
   set -e -o pipefail
   echo Processing ${1}...
   prefix="${1//\//_}"
-  exec >"/split/${prefix}_log"
+  exec > >(tee "/split/${prefix}_log")
   exec 2>&1
   echo
   echo Processing ${1}...
   if [[ -v split ]]; then
     prepare_git "/split/${prefix}" "${prefix}"
   fi
-  dir="/home/rool/rab/cvsroot"
-  find "$dir/$1" -type f | \
-  /cfe --strip "$dir/$1" --commit-time-window 600 --tag-prefix "refs/original/tags/${prefix}_" --branch-prefix "refs/original/heads/${prefix}_"  --verbose | \
-  git fast-import
+  bwrap --unshare-all --ro-bind / / --tmpfs /home/rool/rab/cvsroot/CVSROOT --die-with-parent --proc /proc --dev /dev --tmpfs /tmp \
+  bash -c 'convert2 "$@"' "$1" "${prefix}" | git fast-import
+
   if [[ -v split ]]; then
     python3 /fixup.py
   fi
@@ -66,6 +70,9 @@ convert() {
 
 
 process() {
+
+  bwrap --unshare-all --ro-bind / / --bind /home/rool/rab/cvsroot/CVSROOT /home/rool/rab/cvsroot/CVSROOT --die-with-parent --proc /proc --dev /dev --tmpfs /tmp \
+  cvs -d /home/rool/rab/cvsroot/CVSROOT init
 
   if [[ ! -v split ]]; then
     prepare_git git apache_RiscOS_Sources_Kernel
@@ -83,8 +90,6 @@ process() {
 
 }
 
-export -f convert prepare_git process
+export -f convert convert2 prepare_git process
 
-"${bwrap[@]}"  --seccomp 9 9<seccomp --bind cvsroot/CVSROOT /c/CVSROOT cvs -d /c init
-
-"${bwrap[@]}"  --seccomp 9 9<seccomp --ro-bind cvsroot /home/rool/rab/cvsroot --bind git /git --bind split /split --ro-bind fixup.py /fixup.py --ro-bind cvs-fast-export/cvs-fast-export /cfe --chdir / bash -c process
+"${bwrap[@]}"  --seccomp 9 9<seccomp --ro-bind cvsroot /home/rool/rab/cvsroot  --tmpfs /home/rool/rab/cvsroot/CVSROOT --bind git /git --bind split /split --ro-bind fixup.py /fixup.py --ro-bind cvs2svn /cvs2svn --chdir / bash -c process
