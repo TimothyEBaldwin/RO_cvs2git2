@@ -9,11 +9,16 @@ The RISC OS Open CVS repository requires [many fixes](https://github.com/Timothy
 * GNU/Linux
 * Bubblewrap
 * C Compiler
+* CVS
+* Git
 * Libgit2
+* Libseccomp
 * Make
+* Python 2
 * Python 3
 * pyGit2
-* Git
+
+On Debian derived distributions `sudo sysctl kernel.unprivileged_userns_clone=1` may be required as nested Bubblewrap sandboxes are used.
 
 It should be fairly simple to modify to run on other Unix systems, by removing the use of Bubblewrap. It does not run on RISC OS.
 
@@ -68,8 +73,8 @@ split=1 ./RO_cvs2git
  - [ ] Try building some or all of the history.
  - [ ] Declare the conversion stable.
  - [ ] Check the history of the Customer M Demo branch in the kernel.
- - [ ] Fix apache/RiscOS/Sources/Programmer/BASIC/Tests/CALL,ffb,v
  - [ ] Check remaining components for merges and missing tags.
+ - [ ] Add the remaining products files.
 
 ## Ideas for switching RISC OS Open to Git
 
