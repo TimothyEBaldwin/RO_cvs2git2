@@ -829,7 +829,7 @@ class _FileDataCollector(Sink):
     # test is that the log message CVS uses for 1.1 in imports is
     # "Initial revision\n" with no period.  (This fact helps determine
     # whether this file might have had a default branch in the past.)
-    if revision == '1.1':
+    if revision == '1.1' or revision == '4.1':
       self._file_imported = (log == 'Initial revision\n')
 
   def parse_completed(self):
@@ -955,7 +955,7 @@ class _FileDataCollector(Sink):
         if not self._cvs_file_items.process_live_ntdb(vendor_lod_items):
           return
       elif self._file_imported:
-        vendor_branch_data = self.sdc.branches_data.get('1.1.1')
+        vendor_branch_data = self.sdc.branches_data.get('1.1.1') or self.sdc.branches_data.get('4.1.1') or self.sdc.branches_data.get('4.1.3') or self.sdc.branches_data.get('4.1.5') or self.sdc.branches_data.get('4.1.7')
         if vendor_branch_data is None:
           return
         else:
