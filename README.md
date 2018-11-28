@@ -61,10 +61,8 @@ split=1 ./RO_cvs2git
 
 ## Todo
 
- - [ ] Understand the history of the CVS default branch.
+ - [x] Understand the history of the CVS default branch.
  - [x] Provide a merged branch combining the history of all the development product files. This will use symbolic links in the Products directories to point to the right branch.
- - [ ] Add the remainer of the CVS trunk history to the merged branch.
- - [ ] Merge consecutive commits in product branches.
  - [ ] Add .gitmodules file to submodules branches.
  - [ ] Replace log message "/home/srevill-nfs/sandbox/rool/msg.txt" with something meaningful.
  - [x] Join up the 2 parts of `VFPSupport`.
@@ -72,12 +70,6 @@ split=1 ./RO_cvs2git
  - [ ] Convert CVS usernames to names (and email addresses if wished).
  - [ ] Try building some or all of the history.
  - [ ] Declare the conversion stable.
- - [ ] Check the history of the Customer M Demo branch in the kernel.
+ - [x] Check the history of the Customer M Demo branch in the kernel.
  - [ ] Check remaining components for merges and missing tags.
  - [ ] Add the remaining products files.
-
-## Ideas for switching RISC OS Open to Git
-
-1. Fix CVS history
-2. Merge and retire the HAL branch of all components in CVS (Kernel already done).
-3. Merge the individual product branches with merge branch and delete the symbolic links.
