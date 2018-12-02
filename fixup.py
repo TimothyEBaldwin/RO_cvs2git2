@@ -138,6 +138,10 @@ if repo_name == "mixed/RiscOS/Sources/HAL/OMAP5":
     merge("OMAP5-0_10-1_5_2_4", "OMAP5-0_10")
     merge("OMAP5-0_11", "OMAP5-0_10-1_5_2_4")
 
+if repo_name == "apache/RiscOS/Sources/Apps/Edit":
+    merge("Edit-1_55", "Ursula_merge")
+    reparent_tag("Edit-1_66", "Edit-1_67", 2)
+
 
 repo.apply_replacements()
 repo.save()
