@@ -27,11 +27,7 @@ pc.repo = repository.Repository("super")
 pc.submodules = "submodules"
 pc.submodules_out = os.path.abspath(pc.submodules)
 
-BCM2835Dev = pc.convert("BCM2835Dev")
-pc.merge_branches(BCM2835Dev, pc.convert("BCM2835"    ))
-pc.merge_branches(BCM2835Dev, pc.convert("BCM2835Pico"))
-del BCM2835Dev
-
+pc.merge_branches(pc.convert("BCM2835Dev"  ), pc.convert("BCM2835"  ))
 pc.merge_branches(pc.convert("BuildHostDev"), pc.convert("BuildHost"))
 pc.merge_branches(pc.convert("DiscDev"     ), pc.convert("Disc"     ))
 pc.merge_branches(pc.convert("iMx6Dev"     ), pc.convert("iMx6"     ))
@@ -41,6 +37,7 @@ pc.merge_branches(pc.convert("OMAP4Dev"    ), pc.convert("OMAP4"    ))
 pc.merge_branches(pc.convert("TitaniumDev" ), pc.convert("Titanium" ))
 pc.merge_branches(pc.convert("TungstenDev" ), pc.convert("Tungsten" ))
 
+pc.convert("BCM2835Pico" )
 pc.convert("Batch1to6Dev")
 pc.convert("BonusBinDev" )
 pc.convert("OMAP3Live"   )
