@@ -1,0 +1,104 @@
+#!/bin/bash
+
+# Copyright 2018 Timothy Baldwin
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -e -o pipefail
+cd "$(dirname "$0")"
+unset $(compgen -v GIT)
+mkdir -p submodules logs syminfo symhints cvsroot/CVSROOT
+
+bwrap=(bwrap --unshare-all --proc /proc --dev /dev --dir /tmp )
+
+
+# Discover supported Bubblewrap options
+for i in "--cap-drop ALL" --die-with-parent "--unsetenv TMPDIR"
+do
+  if bwrap --dev-bind / / $i true; then
+    bwrap+=($i)
+  fi
+done
+
+# Add public directories to sandbox
+for i in /etc/alternatives /usr /bin /sbin /lib*
+do
+  if [[ -L $i ]]; then
+    bwrap+=(--symlink "$(readlink "$i")" "$i")
+  else
+    bwrap+=(--ro-bind "$i" "$i")
+  fi
+done
+
+# Output GIT fast export stream on stdout, messages on stderr
+read_cvs_sandboxed() {
+  set -e -o pipefail
+  if [[ -f "/symhints/$2" ]]; then
+    hints="--symbol-hints=/symhints/$1"
+  else
+    hints=""
+  fi
+  /cvs2svn/cvs2git "/home/rool/rab/cvsroot/$0" --encoding=cp437 --tmpdir /tmp/tmp --blobfile /tmp/blob --dumpfile /tmp/dump --username=cvs2git --write-symbol-info /syminfo $hints >&2
+  cat /tmp/blob
+  sed /tmp/dump -E -e "s:refs/(heads|tags)/:refs/original/\\1/:g"
+}
+
+convert() {
+  set -e -o pipefail
+  echo Processing ${1}...
+  prefix="${1//\//_}"
+  exec > >(tee "logs/${prefix}")
+  exec 2>&1
+  echo
+  echo Processing ${1}...
+
+  eval "bwrap=( ${bwrap2} )"
+
+  submod="submodules/${prefix}"
+  mkdir -p "${submod}"
+  ! rm -rf "${submod}/.git"
+  git init "${submod}"
+  echo "ref: refs/heads/master" > "${submod}/.git/HEAD"
+
+  touch "syminfo/${prefix}"
+  "${bwrap[@]}" --ro-bind cvs2svn /cvs2svn --ro-bind symhints /symhints --bind "syminfo/${prefix}" /syminfo --ro-bind cvsroot /home/rool/rab/cvsroot --tmpfs /home/rool/rab/cvsroot/CVSROOT --chdir / \
+  bash -c 'read_cvs_sandboxed "$@"' "$1" "${prefix}" </dev/null | GIT_DIR="${submod}/.git" git fast-import
+
+  python3 fixup.py "${submod}" "$1"
+  echo ${1} Processed
+}
+
+# Convert submodules in parallel
+bwrap2="${bwrap[@]@Q}"
+export -f convert read_cvs_sandboxed
+export bwrap2
+< components.txt grep '^ *[^#]' | sort -u | parallel  --halt soon,fail=1 convert
+
+# Join up VFPSupport
+(
+  cd submodules/mixed_RiscOS_Sources_HWSupport_VFPSupport
+  git reset --hard
+
+  # Copy old VFPSupport into new
+  git fetch ../bsd_RiscOS_Sources_HWSupport_VFPSupport "refs/tags/*:refs/tags/*"
+
+  # Join up histories
+  # Drop the second identical copy of VFPSupport-0_05
+  git replace --graft VFPSupport-0_06 VFPSupport-0_05
+
+  # Clean up
+  git filter-branch -f --tag-name-filter cat master
+  git for-each-ref --format="%(refname)" refs/replace refs/original | xargs -r -n 1 git update-ref -d
+)
+
+exec ./RO_cvs2git_phase2

@@ -1,0 +1,5 @@
+# Columns: project_id symbol_name conversion symbol_path preferred_parent_name
+
+0     Ursula_bp                      tag        . .trunk.
+0     Ursula                         branch     . .trunk.
+

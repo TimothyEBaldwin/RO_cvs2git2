@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Copyright 2018 Timothy Baldwin
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -e -o pipefail
+cd "$(dirname "$0")"
+unset $(compgen -v GIT)
+mkdir -p super submodules logs syminfo symhints cvsroot/CVSROOT
+
+# Remember current directory
+exec 5<.
+
+# Initalise superproject
+! rm -rf super/.git
+git init super
+cd super
+
+# Copy all modules branches into superproject
+for i in /dev/fd/5/submodules/Products_*
+do
+  if [[ -d $i ]]; then
+    j="${i#/dev/fd/5/submodules/}"
+    git fetch "$i" "refs/heads/master:refs/heads/$j"
+  fi
+done
+
+# Rearrange Disc and DiscDev
+git checkout -f Products_Disc
+git fetch /dev/fd/5/submodules/Products_Disc refs/heads/Disc-5_18-ish:refs/tags/Disc-5_18-ish
+git replace --graft Disc-5_18-ish
+git replace --graft 'Products_DiscDev^{/Created DiscDev}' 'Products_Disc^{/now contains revision tags}^'
+git replace --graft 'Products_Disc^{/now contains revision tags}' Disc-5_18-ish
+git filter-branch -f --tag-name-filter cat Products_Disc Products_DiscDev
+
+cd /dev/fd/5
+python3 convert-public-products.py
+
