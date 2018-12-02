@@ -232,6 +232,168 @@ if repo_name == "apache/RiscOS/Sources/FileSys/ResourceFS/ResourceFS":
     merge("ResourceFS-0_16", "Spinner_RCA116", 1)
     merge("ResourceFS-0_20", "Ursula_merge")
 
+if repo_name == "apache/RiscOS/Sources/HAL/IOMD":
+    merge("IOMD-0_01", "HAL_merge")
+
+if repo_name == "apache/RiscOS/Sources/HAL/OMAP4":
+    merge("OMAP4-0_54-1_52_2_2", "OMAP4-0_54")
+    merge("OMAP4-0_59-1_52_2_3", "OMAP4-0_59")
+    merge("OMAP4-0_60", "OMAP4-0_59-1_52_2_3")
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/ARM":
+    merge("nicke_ARM-0_13", "Spin_merge")
+    merge("ARM-0_14", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/BatMgr":
+    merge("BatMgr-0_24", "Spin_merge", 3)
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/Buffers":
+    merge("Buffers-0_26", "Spin_merge")
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/DMA":
+    merge("DMA-0_16", "HAL_merge")
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/DualSerial":
+    merge("DualSerial-0_25", "kbracey_32bit_merge")
+    merge("DualSerial-0_18", "Daytona_merge")
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/Parallel":
+    merge("Parallel-0_51", "Spin_merge")
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/Portable":
+    merge("Ursula_bp", "Spin_merge", 1)
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/Portable75":
+    merge("Portable75-0_05", "kbracey_32bit")
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/PS2Driver":
+    merge("PS2Driver-0_26", "Spin_merge", 1)
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/SmartCard/SCInter":
+    merge("SCInter-0_18", "Spin_merge")
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/Sound/Sound0":
+    merge("Sound0-1_56", "Spin_merge")
+    merge("Sound0-1_56", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/Sound/Sound1":
+    merge("Sound1-1_32", "Spin_merge")
+    merge("Sound1-1_32", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/Sound/Sound2":
+    merge("Sound2-1_24", "Spin_merge")
+    merge("Sound2-1_24", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/HWSupport/UnSqzAIF":
+    merge("UnSqzAIF-0_05", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/Internat/Inter":
+    merge("Inter-1_50", "Ursula_merge", 1)
+
+if repo_name == "apache/RiscOS/Sources/Internat/Territory/Manager":
+    merge("Manager-0_27", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/Internat/Messages":
+    merge("Messages-0_85", "Spin_merge")
+
+if repo_name == "apache/RiscOS/Sources/Lib/callx":
+    get_ref("callx-0_03").parents = [get_ref("callx-0_02-1_1_2_3")]
+
+if repo_name == "apache/RiscOS/Sources/Lib/DebugLib":
+    merge("DebugLib-0_10", "jberanek_debuglib-0_09", 1)
+
+if repo_name == "apache/RiscOS/Sources/Lib/MemLib":
+    merge("MemLib-1_01", "Spin_merge")
+
+if repo_name == "apache/RiscOS/Sources/Lib/HTMLLib":
+    merge("ahodgkin_204release", "Web", 1)
+    merge("Web_bp", "ARTtmp_merge")
+
+if repo_name == "apache/RiscOS/Sources/Networking/AUN/AUNMsgs":
+    merge("AUNMsgs-0_10", "Spin_merge", 1)
+
+if repo_name == "apache/RiscOS/Sources/Networking/AUN/BootNet":
+    merge("BootNet-0_90", "Ursula_13May1998_merge")
+
+if repo_name == "apache/RiscOS/Sources/Networking/AUN/Net":
+    merge("Net-6_18", "Ursula_13May1998_merge", 1)
+
+if repo_name == "apache/RiscOS/Sources/Networking/NetStatus":
+    merge("NetStatus-2_08", "Ursula_13May1998_merge", 2)
+
+if repo_name == "apache/RiscOS/Sources/Networking/NetTime":
+    merge("NetTime-0_04", "Spin_merge")
+
+if repo_name == "apache/RiscOS/Sources/Printing/Modules/MakePSFont":
+    merge("nturton_MakePSFont-1_08", "Spin_merge")
+
+if repo_name == "apache/RiscOS/Sources/Printing/Modules/PDModules":
+    merge("PDModules-4_44", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/Printing/Modules/PDriver":
+    merge("PDriver-3_34", "PDriver-3_33-4_7_2_1")
+
+if repo_name == "apache/RiscOS/Sources/Printing/Modules/PDumperSpt":
+    merge("Ursula_31Mar1998", "Spin_merge")
+
+if repo_name == "apache/RiscOS/Sources/Printing/PPrimer":
+    merge("PPrimer-0_16", "Spin_merge")
+
+if repo_name == "apache/RiscOS/Sources/Programmer/BASIC":
+    merge("BASIC-1_18", "Ursula_merge", 3)
+    merge("BASIC-1_18", "Spin_merge", 4)
+
+if repo_name == "apache/RiscOS/Sources/Programmer/Debugger":
+    merge("Debugger-1_57", "UrsulaBuild_FinalSoftload", 1)
+
+if repo_name == "apache/RiscOS/Sources/Programmer/KeyWatch":
+    merge("KeyWatch-0_09", "KeyWatch-0_08-1_1_2_10", 1)
+
+if repo_name == "apache/RiscOS/Sources/Programmer/Obey":
+    merge("Obey-0_36", "Spin_merge")
+    merge("Obey-0_36", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/Utilities/HForm":
+    merge("HForm-2_52", "Ursula_merge", 3)
+
+if repo_name == "apache/RiscOS/Sources/Video/Render/Colours":
+    merge("Colours-1_67", "Spin_merge")
+
+if repo_name == "apache/RiscOS/Sources/Video/Render/Fonts/ROMFonts":
+    merge("ROMFonts-0_24", "Spinner_RCA116")
+    merge("ROMFonts-0_24", "Ursula_merge", 2)
+
+if repo_name == "apache/RiscOS/Sources/Video/Render/Hourglass":
+    merge("Hourglass-2_14", "bavison_Hourglass_213")
+
+if repo_name == "apache/RiscOS/Sources/Video/Render/ScrBlank":
+    merge("nturton_ScrBlank-2_27", "Spin_merge", 1)
+
+if repo_name == "apache/RiscOS/Sources/Video/UserI/ScrSaver":
+    merge("ScrSaver-0_15", "Spinner")
+
+if repo_name == "apache/RiscOS/Sources/Video/UserI/ScrSavers/AcornLogo":
+    merge("AcornLogo-0_01", "rleggett_AcornLogo-0_02")
+
+if repo_name == "apache/RiscOS/Sources/Video/UserI/ScrSavers/Slider":
+    merge("Slider-0_01", "UrsulaBuild_FinalSoftload", 2)
+
+if repo_name == "apache/RiscOS/Utilities/CVSUtils/EraseCVS":
+    merge("EraseCVS-0_05", "Spin_merge", 2)
+
+if repo_name == "apache/RiscOS/Utilities/Release/srcbuild":
+    merge("srcbuild-0_25", "srcbuild-0_24-1_23_2_4")
+
+if repo_name == "apache/RiscOS/Utilities/Release/builder":
+    merge("builder-0_06", "builder-0_06-1_1_2_2")
+
+if repo_name == "bsd/RiscOS/Sources/Audio/SharedSnd":
+    merge("SharedSnd-0_48", "Spin_merge")
+    merge("SharedSnd-1_06", "ESP_SharedSnd-1_06_merge")
+
+if repo_name == "mixed/RiscOS/Sources/Lib/zlib":
+    merge("zlib-1_13", "zlib_1_1_3")
+
 
 repo.apply_replacements()
 repo.save()
