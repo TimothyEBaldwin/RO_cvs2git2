@@ -402,6 +402,10 @@ if repo_name == "apache/RiscOS/Sources/Toolbox/Gadgets":
 if repo_name == "mixed/RiscOS/Sources/Lib/ImageLib":
     merge("ahodgkin_205release", "IJG_6b", 3)
 
+if repo_name == "mixed/RiscOS/Sources/Video/Render/SprExtend":
+    merge("SprExtend-1_05", "Spin_merge")
+    merge("SprExtend-1_05", "Ursula_merge")
+
 
 repo.apply_replacements()
 repo.save()
