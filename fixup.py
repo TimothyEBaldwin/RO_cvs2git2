@@ -29,7 +29,7 @@ from fixup import *
 refs = repo.refs
 
 use_original_refs()
-#remove_unneeded_branch_and_tag_commits()
+remove_unneeded_branch_and_tag_commits()
 #tidy_default_branch_copies(remove_default = False)
 repo.apply_replacements()
 
