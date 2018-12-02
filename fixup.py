@@ -398,8 +398,8 @@ if repo_name == "mixed/RiscOS/Sources/Lib/zlib":
 repo.apply_replacements()
 repo.save()
 
-#verify_ancestry("Ursula", "Ursula_bp")
-#verify_ancestry("Daytona", "Daytona_bp")
-#verify_ancestry("ARTtmp", "ARTtmp_bp")
+verify_ancestry("Ursula", "Ursula_bp")
+verify_ancestry("Daytona", "Daytona_bp")
+verify_ancestry("ARTtmp", "ARTtmp_bp")
 
 
