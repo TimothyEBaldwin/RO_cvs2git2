@@ -89,6 +89,13 @@ if repo_name == "apache/RiscOS/BuildSys":
     merge("BuildSys-6_00-1_142_2_9", "BuildSys-7_04")
     merge("BuildSys-6_00-1_142_2_10", "BuildSys-7_08")
 
+if repo_name == "apache/RiscOS/Sources/FileSys/FileCore":
+    merge("FileCore-3_28", "FileCore-3_25-4_9_2_2")
+    merge("FileCore-3_26", "FileCore-3_22-4_6_2_1")
+    merge("FileCore-3_21", "Ursula_merge")
+    merge("Ursula_merge", "ROL_Ursula_merge")
+    merge("FileCore-2_99", "Spinner")
+
 if repo_name == "apache/RiscOS/Sources/Programmer/HdrSrc":
     merge("nicke_HdrSrc_21_9_98", "Spin_merge")
     merge("HdrSrc-0_63", "HdrSrc-0_57-4_58_2_9")
