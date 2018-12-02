@@ -96,6 +96,11 @@ if repo_name == "apache/RiscOS/Sources/FileSys/FileCore":
     merge("Ursula_merge", "ROL_Ursula_merge")
     merge("FileCore-2_99", "Spinner")
 
+if repo_name == "apache/RiscOS/Sources/FileSys/FileSwitch":
+    merge("FileSwitch-2_40", "dcotton_Spin_merge")
+    merge("FileSwitch-2_50", "FileSwitch-2_43")
+    merge("FileSwitch-2_51", "FileSwitch-2_45")
+
 if repo_name == "apache/RiscOS/Sources/Programmer/HdrSrc":
     merge("nicke_HdrSrc_21_9_98", "Spin_merge")
     merge("HdrSrc-0_63", "HdrSrc-0_57-4_58_2_9")
