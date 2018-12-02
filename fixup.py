@@ -80,6 +80,15 @@ if repo_name == "apache/RiscOS/Sources/Kernel":
     merge("Kernel-6_08-4_129_2_9", "Kernel-6_08")
     merge("Kernel-6_09", "Kernel-6_08-4_129_2_10")
 
+if repo_name == "apache/RiscOS/BuildSys":
+    merge("BuildSys-6_00-1_142_2_2", "BuildSys-6_11")
+    merge("BuildSys-6_00-1_142_2_3", "BuildSys-6_19")
+    merge("BuildSys-6_00-1_142_2_4", "BuildSys-6_34", 1)
+    merge("BuildSys-6_00-1_142_2_5", "BuildSys-6_52")
+    merge("BuildSys-6_00-1_142_2_6", "BuildSys-6_64")
+    merge("BuildSys-6_00-1_142_2_9", "BuildSys-7_04")
+    merge("BuildSys-6_00-1_142_2_10", "BuildSys-7_08")
+
 
 repo.apply_replacements()
 repo.save()
