@@ -138,9 +138,99 @@ if repo_name == "mixed/RiscOS/Sources/HAL/OMAP5":
     merge("OMAP5-0_10-1_5_2_4", "OMAP5-0_10")
     merge("OMAP5-0_11", "OMAP5-0_10-1_5_2_4")
 
+if repo_name == "apache/RiscOS/Sources/Apps/Alarm":
+    merge("Alarm-2_71", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/Apps/Draw":
+    merge("Draw-1_11", "Ursula_merge")
+
 if repo_name == "apache/RiscOS/Sources/Apps/Edit":
     merge("Edit-1_55", "Ursula_merge")
     reparent_tag("Edit-1_66", "Edit-1_67", 2)
+
+if repo_name == "apache/RiscOS/Sources/Apps/FontEd":
+    merge("Manager-3_42", "Manager-3_41-4_2_2_13")
+
+if repo_name == "apache/RiscOS/Sources/Apps/Help":
+    merge("Help-2_30", "dcotton_Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/Apps/Help2":
+    merge("Help2-3_09", "Ursula_merge")
+    merge("Help2-3_09", "Ursula_RiscPC_merge")
+
+if repo_name == "apache/RiscOS/Sources/Apps/Paint":
+    merge("Paint-1_94", "mstphens_UrsulaRiscPCBuild_20Nov98")
+
+if repo_name == "apache/RiscOS/Sources/Desktop/DragASprit":
+    merge("DragASprit-0_13", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/Desktop/Filer":
+    merge("Filer-1_96", "Ursula_merge", 1)
+
+if repo_name == "apache/RiscOS/Sources/Desktop/FilerAct":
+    merge("FilerAct-0_42", "Spin_merge", 1)
+    merge("FilerAct-0_42", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/Desktop/Filter":
+    merge("Filter-0_21", "Spin_merge")
+    merge("Filter-0_21", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/Desktop/Free":
+    merge("Free-0_32", "Ursula_merge", 1)
+    merge("Free-0_33", "ROL_Free-0_33")
+    merge("Free-0_32", "Spin_merge", 3)
+
+if repo_name == "apache/RiscOS/Sources/Desktop/Pinboard":
+    merge("Pinboard-0_75", "Ursula_merge", 1)
+
+if repo_name == "apache/RiscOS/Sources/Desktop/ShellCLI":
+    merge("ShellCLI-0_30", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/Desktop/Switcher":
+    merge("Switcher-1_10", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/Desktop/TaskWindow":
+    merge("TaskWindow-0_58", "Ursula_merge")
+    merge("nturton_TaskWindow-0_56", "RO_3_71")
+
+if repo_name == "apache/RiscOS/Sources/Desktop/Wimp":
+    merge("bavison_Wimp-4_00_TRUNK", "bavison_Wimp-4_00")
+    merge("Wimp-4_01", "nicke_Wimp_3_96M", 1)
+
+if repo_name == "apache/RiscOS/Sources/FileSys/ADFS/ADFS":
+    merge("ADFS-3_32", "Ursula_RiscPC_merge")
+
+if repo_name == "apache/RiscOS/Sources/FileSys/ADFS/ADFSFiler":
+    merge("ADFSFiler-0_89", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/FileSys/NetFS/NetFiler":
+    merge("NetFiler-0_78", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/FileSys/NetFS/NetFS":
+    merge("NetFS-5_91", "UrsulaBuild_FinalSoftload")
+
+if repo_name == "apache/RiscOS/Sources/FileSys/NetPrint":
+    merge("NetPrint-5_54", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/FileSys/PCCardFS/PCCardFS":
+    merge("PCCardFS-0_10", "UrsulaBuild_FinalSoftload")
+
+if repo_name == "apache/RiscOS/Sources/FileSys/PipeFS":
+    merge("PipeFS-0_17", "Spin_merge")
+    merge("PipeFS-0_17", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/FileSys/RAMFS/RAMFS":
+    merge("RAMFS-2_15", "Ursula_merge", 1)
+
+if repo_name == "apache/RiscOS/Sources/FileSys/RAMFS/RAMFSFiler":
+    merge("RAMFSFiler-0_35", "Ursula_merge")
+
+if repo_name == "apache/RiscOS/Sources/FileSys/ResourceFS/ResFiler":
+    merge("ResFiler-0_16", "Ursula_merge", 2)
+
+if repo_name == "apache/RiscOS/Sources/FileSys/ResourceFS/ResourceFS":
+    merge("ResourceFS-0_16", "Spinner_RCA116", 1)
+    merge("ResourceFS-0_20", "Ursula_merge")
 
 
 repo.apply_replacements()
