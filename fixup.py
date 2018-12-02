@@ -89,6 +89,16 @@ if repo_name == "apache/RiscOS/BuildSys":
     merge("BuildSys-6_00-1_142_2_9", "BuildSys-7_04")
     merge("BuildSys-6_00-1_142_2_10", "BuildSys-7_08")
 
+if repo_name == "apache/RiscOS/Sources/Programmer/HdrSrc":
+    merge("nicke_HdrSrc_21_9_98", "Spin_merge")
+    merge("HdrSrc-0_63", "HdrSrc-0_57-4_58_2_9")
+    merge("HdrSrc-1_62-4_162_2_3", "HdrSrc-1_65")
+    merge("HdrSrc-1_62-4_162_2_4", "HdrSrc-1_67")
+    merge("HdrSrc-1_62-4_162_2_7", "HdrSrc-1_68")
+    merge("HdrSrc-1_62-4_162_2_14", "HdrSrc-1_74")
+    merge("HdrSrc-1_62-4_162_2_15", "HdrSrc-1_75")
+    merge("HdrSrc-1_76", "HdrSrc-1_62-4_162_2_15")
+
 
 repo.apply_replacements()
 repo.save()
