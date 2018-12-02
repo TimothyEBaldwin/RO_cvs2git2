@@ -111,6 +111,33 @@ if repo_name == "apache/RiscOS/Sources/Programmer/HdrSrc":
     merge("HdrSrc-1_62-4_162_2_15", "HdrSrc-1_75")
     merge("HdrSrc-1_76", "HdrSrc-1_62-4_162_2_15")
 
+if repo_name == "mixed/RiscOS/Sources/HAL/BCM2835":
+    merge("BCM2835-0_71-1_70_2_2", "BCM2835-0_71")
+    merge("BCM2835-0_73-1_70_2_3", "BCM2835-0_73")
+    merge("BCM2835-0_75-1_70_2_4", "BCM2835-0_75")
+    merge("BCM2835-0_76", "BCM2835-0_75-1_70_2_4")
+    #merge("", "Pi3APlus_merge")
+
+if repo_name == "mixed/RiscOS/Sources/HAL/iMx6":
+    merge("iMx6-0_80-1_4_2_1", "iMx6-0_80")
+    merge("iMx6-0_82-1_4_2_3", "iMx6-0_82")
+    merge("iMx6-0_82-1_4_2_4", "iMx6-0_84")
+    merge("iMx6-0_82-1_4_2_5", "iMx6-0_85")
+    merge("iMx6-0_82-1_4_2_6", "iMx6-0_86")
+    merge("iMx6-0_87-1_4_2_7", "iMx6-0_87")
+    merge("iMx6-0_87-1_4_2_8", "iMx6-0_88")
+    merge("iMx6-0_87-1_4_2_9", "iMx6-0_89")
+    merge("iMx6-0_90-1_4_2_10", "iMx6-0_90")
+    merge("iMx6-0_90-1_4_2_11", "iMx6-0_96")
+    merge("iMx6-0_96-1_4_2_12", "iMx6-0_96")
+    merge("iMx6-0_97", "iMx6-0_96-1_4_2_12")
+
+if repo_name == "mixed/RiscOS/Sources/HAL/OMAP5":
+    merge("OMAP5-0_06-1_5_2_1", "OMAP5-0_06")
+    merge("OMAP5-0_07-1_5_2_3", "OMAP5-0_07")
+    merge("OMAP5-0_10-1_5_2_4", "OMAP5-0_10")
+    merge("OMAP5-0_11", "OMAP5-0_10-1_5_2_4")
+
 
 repo.apply_replacements()
 repo.save()
