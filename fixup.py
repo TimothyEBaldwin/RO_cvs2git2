@@ -37,6 +37,20 @@ repo.apply_replacements()
 if have_branch():
     open(os.path.join(sys.argv[1], "have_branch"), "wt").close()
 
+if repo_name == "apache/RiscOS/Sources/Video/Render/Fonts/Manager":
+    raise_tag("Manager-3_41-4_2_2_1")
+    raise_tag("Manager-3_41-4_2_2_2")
+    raise_tag("Manager-3_41-4_2_2_3")
+    raise_tag("Manager-3_41-4_2_2_4")
+    raise_tag("Manager-3_41-4_2_2_5")
+    raise_tag("Manager-3_41-4_2_2_6")
+
+    raise_tag("Manager-3_41-4_2_2_8")
+    raise_tag("Manager-3_41-4_2_2_9")
+    raise_tag("Manager-3_41-4_2_2_10")
+    raise_tag("Manager-3_41-4_2_2_11")
+    raise_tag("Manager-3_41-4_2_2_12")
+    raise_tag("Manager-3_41-4_2_2_13")
 
 
 repo.apply_replacements()
