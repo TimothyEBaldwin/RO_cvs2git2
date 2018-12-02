@@ -66,6 +66,20 @@ if repo_name == "apache/RiscOS/Utilities/Autobuild/ABRelease":
     c = get_ref("ABRelease-0_85-1_84_2_1")
     c.message = c.message.replace("Uupdate", "Update")
 
+if repo_name == "apache/RiscOS/Sources/Kernel":
+    merge("Kernel-5_35-4_79_2_123", "Kernel-5_35-4_79_2_98_2_54")
+    merge("Kernel-5_35-4_79_2_147_2_1", "Kernel-5_35-4_79_2_98_2_52_2_1")
+    merge("Kernel-5_35-4_79_2_147_2_23", "Kernel-5_35-4_79_2_164")
+    merge("Kernel-5_35-4_79_2_165", "Kernel-5_35-4_79_2_147_2_23")
+    merge("Kernel-5_48", "Kernel-5_35-4_79_2_327")
+    merge("Kernel-5_86-4_129_2_1", "Kernel-5_86")
+    merge("Kernel-5_88-4_129_2_4", "Kernel-5_88")
+    merge("Kernel-5_89-4_129_2_6", "Kernel-5_89")
+    merge("Kernel-5_97-4_129_2_7", "Kernel-5_97")
+    merge("Kernel-6_05-4_129_2_8", "Kernel-6_05")
+    merge("Kernel-6_08-4_129_2_9", "Kernel-6_08")
+    merge("Kernel-6_09", "Kernel-6_08-4_129_2_10")
+
 
 repo.apply_replacements()
 repo.save()
