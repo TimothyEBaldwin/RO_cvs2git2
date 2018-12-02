@@ -52,6 +52,20 @@ if repo_name == "apache/RiscOS/Sources/Video/Render/Fonts/Manager":
     raise_tag("Manager-3_41-4_2_2_12")
     raise_tag("Manager-3_41-4_2_2_13")
 
+if repo_name == "apache/RiscOS/Utilities/Autobuild/ABRelease":
+    merge("ABRelease-0_89", "RISC_OS-5_26_merge")
+    raise_tag("ABRelease-0_34")
+    raise_tag("ABRelease-0_37")
+    raise_tag("ABRelease-0_39")
+    raise_tag("ABRelease-0_40")
+    raise_tag("ABRelease-0_41")
+    raise_tag("ABRelease-0_42")
+    raise_tag("ABRelease-0_43")
+    raise_tag("ABRelease-0_44")
+    # Fix spelling error in commit message
+    c = get_ref("ABRelease-0_85-1_84_2_1")
+    c.message = c.message.replace("Uupdate", "Update")
+
 
 repo.apply_replacements()
 repo.save()
