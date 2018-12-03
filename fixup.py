@@ -394,6 +394,11 @@ if repo_name == "bsd/RiscOS/Sources/Audio/SharedSnd":
 if repo_name == "mixed/RiscOS/Sources/Lib/zlib":
     merge("zlib-1_13", "zlib_1_1_3")
 
+if repo_name == "apache/RiscOS/Sources/Toolbox/Gadgets":
+    merge("sbrodie_TextGadgets_merged_19Jun98", "sbrodie_Daytona_merge_19Jun98", 0)
+    merge("sbrodie_TextGadgets_merged_19Jun98", "sbrodie_Daytona_merge_19Jun98", 1)
+    merge("sbrodie_TextGadgets_merged_19Jun98", "sbrodie_Spin_merge_18Jun98", 2)
+
 if repo_name == "mixed/RiscOS/Sources/Lib/ImageLib":
     merge("ahodgkin_205release", "IJG_6b", 3)
 
