@@ -394,6 +394,9 @@ if repo_name == "bsd/RiscOS/Sources/Audio/SharedSnd":
 if repo_name == "mixed/RiscOS/Sources/Lib/zlib":
     merge("zlib-1_13", "zlib_1_1_3")
 
+if repo_name == "mixed/RiscOS/Sources/Lib/ImageLib":
+    merge("ahodgkin_205release", "IJG_6b", 3)
+
 
 repo.apply_replacements()
 repo.save()
