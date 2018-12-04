@@ -19,7 +19,7 @@ cd "$(dirname "$0")"
 unset $(compgen -v GIT)
 mkdir -p submodules logs syminfo symhints cvsroot/CVSROOT
 
-bwrap=(bwrap --unshare-all --proc /proc --dev /dev --dir /tmp )
+bwrap=(bwrap --unshare-all --dir /tmp )
 
 
 # Discover supported Bubblewrap options
