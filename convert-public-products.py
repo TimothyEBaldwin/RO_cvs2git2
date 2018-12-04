@@ -23,6 +23,7 @@ import product_converter as pc
 import repository
 
 sys.setrecursionlimit(10000)
+pc.have_closed = False
 pc.repo = repository.Repository("super")
 pc.submodules = "submodules"
 pc.submodules_out = os.path.abspath(pc.submodules)

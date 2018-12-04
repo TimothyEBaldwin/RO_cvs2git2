@@ -66,7 +66,7 @@ def parse_modules(text):
         if path == "private/Products":
             continue # Also from iMx6.
 
-        if path == "closed/RiscOS/Sources/SystemRes/LiveDisc":
+        if path == "closed/RiscOS/Sources/SystemRes/LiveDisc" and not have_closed:
             continue # But this is from OMAP3Live
 
         if path == "apache/RiscOS/Apps/Makefile":
@@ -89,6 +89,7 @@ def parse_modules(text):
             pass # Tag name typo
 
         else:
+            assert have_closed or not path.startswith("closed")
             yield path, tag
 
 
