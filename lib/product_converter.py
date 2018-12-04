@@ -44,21 +44,50 @@ def parse_modules(text):
             tag = "master"
 
         # Fix mistakes
-        if path.startswith("private/") or path.startswith("closed/"):
-            pass # FIXME?
-        elif path == "apache/RiscOS/Apps/Makefile":
-            pass
-        elif path == "apache/RiscOS/Sources/Video/UserI/BootFX":
-            pass # FIXME?
-        elif path == "bsd/RiscOS/Sources/Utilties/SDCreate":
-            pass # FIXME?
-        elif path == "mixed/RiscOS/Sources/HWSupport/USB":
+
+        if path == "private/RiscOS/Sources/HAL/iMx6":
+            continue # Early versions of the iMx6 HAL are not public.
+        if path == "private/RiscOS/Sources/Video/HWSupport/IMXVideo":
+            continue # Early versions of IMXVideo are not public.
+        if path == "private/RiscOS/Sources/Networking/Ethernet/EtherTH":
+            continue # Early versions of EtherTH are not public.
+        if path == "private/RiscOS/Sources/Networking/Ethernet/EtherET":
+            continue # And EtherET is completely missing.
+        if path == "private/patcher" or path == "private/patcher/modules":
+            continue # Also from iMx6.
+        if path == "private/RiscOS/BuildSys":
+            continue # Also from iMx6.
+        if path == "private/RiscOS/Env":
+            continue # Also from iMx6.
+        if path == "private/RiscOS/Sources/FileSys/SATAFS/SATAFS":
+            continue # Also from iMx6.
+        if path == "private/RiscOS/Sources/HWSupport/SD/SDCMOS":
+            continue # Also from iMx6.
+        if path == "private/Products":
+            continue # Also from iMx6.
+
+        if path == "closed/RiscOS/Sources/SystemRes/LiveDisc":
+            continue # But this is from OMAP3Live
+
+        if path == "apache/RiscOS/Apps/Makefile":
+            continue # FIXME
+
+        if path == "apache/RiscOS/Sources/Video/UserI/BootFX":
+            continue # Wrong path given in BCM2835Dev
+
+        if path == "bsd/RiscOS/Sources/Utilties/SDCreate":
+            continue # Spelling error, Utilities mispelled
+
+
+        if path == "mixed/RiscOS/Sources/HWSupport/USB":
             pass # FIXME
         elif path == "apache/RiscOS/Sources/FileSys/CDFS":
             yield "apache/RiscOS/Sources/FileSys/CDFS/CDFS", tag
             yield "apache/RiscOS/Sources/FileSys/CDFS/CDFSFiler", tag
+
         elif path == "apache/RiscOS/Sources/HAL/OMAP3" and tag == "OMAP3-0_867":
-            pass # FIXME?
+            pass # Tag name typo
+
         else:
             yield path, tag
 
