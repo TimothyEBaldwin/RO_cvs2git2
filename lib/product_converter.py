@@ -130,7 +130,7 @@ def convert(name):
                 # FIXME Make binary submodules shallow
                 modules += ("[submodule \"" + rpath + "\"]\n"
                             "\tpath = " + path + "\n"
-                            "\turl = /home/tim/RISC_OS/cfe/submodules/" + rpath.replace("/", "_") + "\n")
+                            "\turl = " + submodules_out + "/" + rpath.replace("/", "_") + "\n")
 
                 # Get reference to submodule repository
                 refs = repos[rpath]
