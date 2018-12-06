@@ -43,6 +43,9 @@ done
 # Output GIT fast export stream on stdout, messages on stderr
 read_cvs_sandboxed() {
   set -e -o pipefail
+  mkdir -p /home/rool/rab/cvsroot/CVSROOT "$(dirname "/home/rool/rab/cvsroot/$0")"
+  cp -as /cvs "/home/rool/rab/cvsroot/$0"
+  find /home -iname '.cvstag,v' -delete
   /cvs2svn/cvs2git "/home/rool/rab/cvsroot/$0" --encoding=cp437 --tmpdir /tmp/tmp --blobfile /tmp/blob --dumpfile /tmp/dump --username=cvs2git >&2
   cat /tmp/blob
   sed /tmp/dump -E -e "s:refs/(heads|tags)/:refs/original/\\1/:g"
@@ -65,7 +68,7 @@ convert() {
   git init "${submod}"
   echo "ref: refs/heads/master" > "${submod}/.git/HEAD"
 
-  "${bwrap[@]}" --ro-bind cvs2svn /cvs2svn --ro-bind cvsroot /home/rool/rab/cvsroot --tmpfs /home/rool/rab/cvsroot/CVSROOT --chdir / \
+  "${bwrap[@]}" --ro-bind cvs2svn /cvs2svn --ro-bind "cvsroot/$1" /cvs --chdir / \
   bash -c 'read_cvs_sandboxed "$@"' "$1" "${prefix}" </dev/null | GIT_DIR="${submod}/.git" git fast-import
 
   python3 fixup.py "${submod}" "$1"
