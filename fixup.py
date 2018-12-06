@@ -299,6 +299,9 @@ if repo_name == "apache/RiscOS/Sources/Internat/Messages":
 if repo_name == "apache/RiscOS/Sources/Lib/callx":
     get_ref("callx-0_03").parents = [get_ref("callx-0_02-1_1_2_3")]
 
+if repo_name == "apache/RiscOS/Sources/Lib/Configure":
+    merge("Configure-0_01", "Ursula")
+
 if repo_name == "apache/RiscOS/Sources/Lib/DebugLib":
     merge("DebugLib-0_10", "jberanek_debuglib-0_09", 1)
 
