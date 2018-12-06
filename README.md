@@ -72,6 +72,7 @@ The early versions of the are following componments incomplete and unbuildable:
 * `apache/RiscOS/Sources/Lib/CLXLite`
 * `apache/RiscOS/Sources/Lib/PRISMLib`
 * `apache/RiscOS/Sources/Programmer/HdrSrc`
+* `apache/RiscOS/Sources/Video/Render/Hourglass2` - all versions
 * `mixed/RiscOS/Sources/HWSupport/FPASC`
 
 The following componment have minor redactiosn in history and have a (slightly) fictuious pre-redaction history in the hope early versions are buildable:
