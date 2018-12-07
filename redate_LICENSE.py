@@ -30,7 +30,7 @@ for sm in mods:
     repo = pygit2.Repository("submodules/" + sm.replace("/", "_"))
     master = repo[repo.lookup_reference("refs/heads/master").target]
     if "LICENSE" in master.tree:
-        print(r"sed -i 's/2018\.11\.08\.00\.05\.29/84.01.02.00.00.00/g'", "'" + name + ",v'")
+        print(r"sed -i 's/2018\.11\.08\.00\.05\.29/96.11.05.00.00.01/g'", "'" + name + ",v'")
         for ref in repo.listall_references():
             if ref.startswith("refs/heads/") and ref != "refs/heads/master" and not ref.startswith("refs/heads/unlabeled"):
                 print("cvs rtag -r1.1 -b", "%-37s" % ref[11:], "'" + name + "'")
