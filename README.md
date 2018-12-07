@@ -7,10 +7,13 @@ Converts a local copy of the the [RISC OS Open CVS repository](https://www.risco
 * GNU/Linux
 * Bubblewrap
 * Git
+* GNU Parallel
 * Libgit2
 * Python 2
 * Python 3
 * pyGit2
+
+The required Debian/Unbuntu packages are "bubblewrap git parallel python3-pygit2 python python3".
 
 It should be fairly simple to modify to run on other Unix systems, by removing the use of Bubblewrap in `RO_cvs2git`. It does not run on RISC OS.
 
