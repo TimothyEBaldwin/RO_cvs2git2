@@ -158,7 +158,7 @@ def convert(name):
 
                 # Generate .gitmodules entry
                 # FIXME Make binary submodules shallow
-                modules += ("[submodule \"" + rpath + "\"]\n"
+                modules += ("[submodule \"" + rpath.replace("/", "_") + "\"]\n"
                             "\tpath = " + path + "\n"
                             "\turl = " + submodules_out + "/" + rpath.replace("/", "_") + "\n")
 
