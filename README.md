@@ -36,7 +36,7 @@ The directory `super` will be a git repository which is superproject fot the sub
  - [ ] Check for missing components.
  - [ ] Convert CVS usernames to names (and email addresses if wished).
  - [ ] Convert `PlingSystem` product.
- - [ ] Eliminate `InstallTools`?
+ - [ ] ~~Eliminate `InstallTools`?~~
  - [ ] Eliminate `Prepare` by moving submodules to the required location.
  - [ ] Fix character set conversion of commit messages.
  - [ ] Fix handling of `InetSetup`.
@@ -52,7 +52,7 @@ The directory `super` will be a git repository which is superproject fot the sub
  - [x] Check remaining components for merges and missing tags.
  - [x] Check the history of the Customer M Demo branch in the kernel.
  - [x] Join up the 2 parts of `VFPSupport`.
- - [x] PrintDefs-0.42 is a branch.
+ - [ ] PrintDefs-0.42 is a branch.
  - [x] Replace log message "/home/srevill-nfs/sandbox/rool/msg.txt" with something meaningful.
  - [x] Understand the history of the CVS default branch.
 
@@ -86,5 +86,5 @@ The following componment have minor redactiosn in history and have a (slightly) 
  ## After Conversion Suggestions
 
  * Make superprojects mergeable - allows easier testing of changes in different builds
- * Merge superprojects
- * Move per Env/ROOL/* and Buildsys/components/ROOL out of the submodules and into the relvant superproject.
+ * ~~Merge superprojects~~
+ * Move per Env/ROOL/* and Buildsys/components/ROOL out of the submodules and into the relevant superproject.
