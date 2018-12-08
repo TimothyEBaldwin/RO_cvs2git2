@@ -35,7 +35,7 @@ The directory `super` will be a git repository which is superproject fot the sub
  - [ ] Apply tags to output branches in superproject.
  - [ ] Check for missing components.
  - [ ] Convert CVS usernames to names (and email addresses if wished).
- - [ ] Convert `PlingSystem` product.
+ - [x] Convert `PlingSystem` product.
  - [ ] ~~Eliminate `InstallTools`?~~
  - [ ] Eliminate `Prepare` by moving submodules to the required location.
  - [ ] Fix character set conversion of commit messages.

@@ -44,7 +44,7 @@ pc.convert("BonusBinDev" )
 pc.convert("OMAP3Live"   )
 pc.convert("OMAP5Dev"    )
 pc.convert("S3CDev"      )
-#pc.convert("PlingSystem" )
+pc.convert("PlingSystem" )
 
 #pc.convert("CTools"      )
 

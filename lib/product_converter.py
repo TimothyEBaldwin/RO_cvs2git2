@@ -39,6 +39,10 @@ def parse_modules(text):
         # Sometimes "." is used a directory separator
         path = path.replace(".", "/")
 
+        # Fix castle prefix
+        if path.startswith("castle/"):
+            path = "apache" + path[6:]
+
         # Convert from CVS to git
         if tag == "TRUNK" or tag == "HEAD":
             tag = "master"
